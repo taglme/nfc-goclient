@@ -14,13 +14,13 @@ type AboutService interface {
 
 type aboutService struct {
 	url    string
-	Client *http.Client
+	client *http.Client
 }
 
 func newAboutService(c *http.Client, url string) AboutService {
 	return &aboutService{
 		url:    url,
-		Client: c,
+		client: c,
 	}
 }
 
@@ -28,7 +28,7 @@ func newAboutService(c *http.Client, url string) AboutService {
 func (s *aboutService) Get() (info models.AppInfo, err error) {
 	targetURL := s.url + "/about"
 
-	resp, err := s.Client.Get(targetURL)
+	resp, err := s.client.Get(targetURL)
 	if err != nil {
 		return info, errors.Wrap(err, "Can't get about info")
 	}
