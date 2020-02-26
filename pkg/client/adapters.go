@@ -9,12 +9,13 @@ import (
 
 	"github.com/taglme/nfc-client/pkg/models"
 )
-type AdapterFilter struct{
+
+type AdapterFilter struct {
 	AdapterType models.AdapterType
 }
 type AdapterService interface {
 	GetAll() ([]models.Adapter, error)
-	GetFiltered(filter AdapterFilter) ([]models.Adapter, error)
+	GetFiltered(adapterType models.AdapterType) ([]models.Adapter, error)
 	Get(adapterID string) (models.Adapter, error)
 }
 
