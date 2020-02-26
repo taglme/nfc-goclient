@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	uuid "github.com/nu7hatch/gouuid"
@@ -39,6 +40,49 @@ func (j Job) ToJobRun() JobRun {
 		CreatedAt:   createdAt,
 	}
 	return jobRun
+}
+
+func (j JobRunResource) ToJobRun() JobRun {
+	s, ok := StringToJobRunStatus(j.Status)
+	if !ok {
+		log.Printf("Can't convert job run resource status\n")
+	}
+
+	t, err := time.Parse(time.RFC3339, j.CreatedAt)
+	if err != nil {
+		log.Printf("Can't parse job run resource created at\n")
+	}
+
+	tag, err := j.Tag.ToTag()
+	if err != nil {
+		log.Printf("Can't convert job run tag resource\n")
+	}
+
+	var results []StepResult
+	for _, r := range j.Results {
+		stepRes, err := r.ToStepResult()
+
+		if err != nil {
+			log.Printf("Can't convert job run result to the step result model\n")
+			continue
+		}
+
+		results = append(results, stepRes)
+	}
+
+	job := JobRun{
+		RunID:       j.RunID,
+		JobID:       j.JobID,
+		JobName:     j.JobName,
+		Status:      s,
+		AdapterID:   j.AdapterID,
+		AdapterName: j.AdapterName,
+		Tag:         tag,
+		Results:     results,
+		CreatedAt:   t,
+	}
+
+	return job
 }
 
 type JobRunResource struct {
