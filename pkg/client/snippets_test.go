@@ -2,12 +2,13 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-client/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-client/pkg/models"
 )
 
 func TestBuildSnippetsQueryParams(t *testing.T) {
@@ -16,13 +17,13 @@ func TestBuildSnippetsQueryParams(t *testing.T) {
 		UsageID: &id,
 	})
 
-	assert.Equal(t, "?user_id=123", q)
+	assert.Equal(t, "?usage_id=123", q)
 
 	c := "tag"
 	id1 := "123"
 	cat, ok := models.StringToSnippetCategory(c)
 	if !ok {
-		log.Printf("Can't convert snippter resource category\n")
+		log.Printf("Can't convert snippet resource category\n")
 	}
 
 	q1 := buildSnippetsQueryParams(SnippetFilter{
@@ -30,7 +31,7 @@ func TestBuildSnippetsQueryParams(t *testing.T) {
 		UsageID:  &id1,
 	})
 
-	assert.Equal(t, "?user_id=123&category=tag", q1)
+	assert.Equal(t, "?usage_id=123&category=tag", q1)
 }
 
 func TestSnippetsGetAll(t *testing.T) {
@@ -66,7 +67,7 @@ func TestSnippetsGetAll(t *testing.T) {
 
 	cat, ok := models.StringToSnippetCategory("tag")
 	if !ok {
-		log.Printf("Can't convert snippter resource category\n")
+		log.Printf("Can't convert snippet resource category\n")
 	}
 
 	assert.Equal(t, "id", body[0].UsageID)
@@ -78,7 +79,7 @@ func TestSnippetsGetAll(t *testing.T) {
 func TestSnippetsGetFiltered(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
-		assert.Equal(t, req.URL.String(), "/snippets?user_id=123")
+		assert.Equal(t, req.URL.String(), "/snippets?usage_id=123")
 		resp, err := json.Marshal([]models.SnippetResource{{
 			Name:        "name",
 			Category:    "tag",

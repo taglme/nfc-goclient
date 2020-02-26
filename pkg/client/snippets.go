@@ -2,11 +2,12 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-client/pkg/models"
 	"io/ioutil"
 	"net/http"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-client/pkg/models"
 )
 
 type SnippetFilter struct {
@@ -78,7 +79,7 @@ func buildSnippetsQueryParams(filter SnippetFilter) (queryParams string) {
 	queryParams = ""
 
 	if filter.UsageID != nil {
-		queryParams += "&user_id=" + *filter.UsageID
+		queryParams += "&usage_id=" + *filter.UsageID
 	}
 
 	if filter.Category != nil {
