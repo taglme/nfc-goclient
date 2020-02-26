@@ -13,10 +13,10 @@ type Client struct {
 	Events   EventService
 	Snippets SnippetService
 	Tags     TagService
+	Runs     RunService
+	Jobs     JobService
 	/*
 		TODO
-		Jobs JobService
-		Runs RunService
 		Ws WsService
 	*/
 }
@@ -30,6 +30,8 @@ func New(url string) *Client {
 		Events:   newEventService(httpClient, url),
 		Snippets: newSnippetService(httpClient, url),
 		Tags:     newTagService(httpClient, url),
+		Runs:     newRunService(httpClient, url),
+		Jobs:     newJobService(httpClient, url),
 	}
 }
 
