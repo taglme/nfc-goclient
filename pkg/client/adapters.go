@@ -20,12 +20,14 @@ type AdapterService interface {
 }
 
 type adapterService struct {
-	url string
+	url    string
+	client *http.Client
 }
 
-func newAdapterService(url string) AdapterService {
+func newAdapterService(client *http.Client, url string) AdapterService {
 	return &adapterService{
-		url: url,
+		url:    url,
+		client: client,
 	}
 }
 
@@ -40,7 +42,7 @@ func (s *adapterService) GetFiltered(adapterType models.AdapterType) (adapters [
 	if adapterTypeStr != "" {
 		targetURL = targetURL + "?type=" + adapterTypeStr
 	}
-	resp, err := http.Get(targetURL)
+	resp, err := s.client.Get(targetURL)
 	if err != nil {
 		return
 	}
@@ -77,7 +79,7 @@ func (s *adapterService) Get(adapterID string) (adapter models.Adapter, err erro
 	}
 
 	targetURL := s.url + "/adapters/" + adapterID
-	resp, err := http.Get(targetURL)
+	resp, err := s.client.Get(targetURL)
 	if err != nil {
 		return
 	}
