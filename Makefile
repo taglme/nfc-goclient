@@ -7,10 +7,10 @@ build:
 	go build -mod=vendor -o artifacts/svc
 
 lint:
-	golangci-lint run
+	golangci-lint run pkg/client
 
 test:
-	go test -mod=vendor -count=1 -cover -v `go list ./...`
+	go test -count=1 -cover -v `go list ./...`
 
 dockerise:
 	docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" -f Dockerfile .
