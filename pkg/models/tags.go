@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 )
 
 type Tag struct {
@@ -72,6 +73,27 @@ func (t Tag) ToShortResource() TagShortResource {
 		Uid:         encodedUid,
 	}
 	return resource
+}
+
+func (t TagShortResource) ToTag() Tag {
+	tType, ok := StringToTagType(t.Type)
+	if !ok {
+		log.Printf("Can't convert type resource category\n")
+	}
+
+	uuid, err := base64.StdEncoding.DecodeString(t.Uid)
+	if err != nil {
+		log.Printf("Can't decode tag uuid\n")
+	}
+
+	tag := Tag{
+		TagID:       t.TagID,
+		Type:        tType,
+		AdapterID:   t.AdapterID,
+		AdapterName: t.AdapterName,
+		Uid:         uuid,
+	}
+	return tag
 }
 
 func (t TagResource) ToTag() (Tag, error) {

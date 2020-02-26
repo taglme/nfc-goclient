@@ -10,14 +10,13 @@ import (
 type Client struct {
 	Adapters AdapterService
 	About    AboutService
+	Events   EventService
+	Snippets SnippetService
+	Tags     TagService
 	/*
 		TODO
-		Tags TagService
 		Jobs JobService
 		Runs RunService
-		Events EventService
-		About AboutService
-		Snippets SnippetService
 		Ws WsService
 	*/
 }
@@ -26,8 +25,11 @@ func New(url string) *Client {
 	httpClient := &http.Client{}
 
 	return &Client{
-		Adapters: newAdapterService(url),
+		Adapters: newAdapterService(httpClient, url),
 		About:    newAboutService(httpClient, url),
+		Events:   newEventService(httpClient, url),
+		Snippets: newSnippetService(httpClient, url),
+		Tags:     newTagService(httpClient, url),
 	}
 }
 
