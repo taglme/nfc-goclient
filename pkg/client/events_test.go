@@ -13,7 +13,7 @@ import (
 
 func TestBuildQueryParams(t *testing.T) {
 	id := "123"
-	q := buildQueryParams(&id, EventFilter{
+	q := buildEventsQueryParams(&id, EventFilter{
 		Name:    nil,
 		SortBy:  nil,
 		SortDir: nil,
@@ -28,7 +28,7 @@ func TestBuildQueryParams(t *testing.T) {
 	offset := 321
 	l := 123
 
-	q1 := buildQueryParams(nil, EventFilter{
+	q1 := buildEventsQueryParams(nil, EventFilter{
 		Name:    nil,
 		SortBy:  &by,
 		SortDir: &dir,

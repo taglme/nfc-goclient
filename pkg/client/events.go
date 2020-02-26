@@ -51,7 +51,7 @@ func (s *eventService) GetAll() ([]models.Event, error) {
 // filter.sortby – Sort field for list.
 // filter.sortdir – Sort direction for list
 func (s *eventService) GetFiltered(adapterID *string, filter EventFilter) (events []models.Event, err error) {
-	queryParams := buildQueryParams(adapterID, filter)
+	queryParams := buildEventsQueryParams(adapterID, filter)
 	resp, err := s.client.Get(s.url + s.path + queryParams)
 	if err != nil {
 		return events, errors.Wrap(err, "Can't get events\n")
@@ -115,7 +115,7 @@ func (s *eventService) Add(ne models.NewEvent) (event models.Event, err error) {
 }
 
 // Function builds events get query params
-func buildQueryParams(adapterID *string, filter EventFilter) (queryParams string) {
+func buildEventsQueryParams(adapterID *string, filter EventFilter) (queryParams string) {
 	queryParams = ""
 
 	if adapterID != nil {
