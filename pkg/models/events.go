@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log"
 	"time"
 
 	uuid "github.com/nu7hatch/gouuid"
@@ -31,11 +32,34 @@ type EventResource struct {
 }
 
 type EventListResource struct {
-	Total  int
-	Length int
-	Limit  int
-	Offset int
-	Items  []EventResource
+	Total  int             `json:"total"`
+	Length int             `json:"length"`
+	Limit  int             `json:"limit"`
+	Offset int             `json:"offset"`
+	Items  []EventResource `json:"items"`
+}
+
+func (e EventResource) ToEvent() Event {
+	eName, ok := StringToEventName(e.Name)
+	if !ok {
+		log.Printf("Can't convert event resource name to event name\n")
+	}
+
+	t, err := time.Parse(time.RFC3339, e.CreatedAt)
+	if err != nil {
+		log.Printf("Can't parse event resource created at\n")
+	}
+
+	event := Event{
+		EventID:     e.EventID,
+		Name:        eName,
+		AdapterID:   e.AdapterID,
+		AdapterName: e.AdapterName,
+		Data:        e.Data,
+		CreatedAt:   t,
+	}
+
+	return event
 }
 
 func (e Event) ToResource() EventResource {

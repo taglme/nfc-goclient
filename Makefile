@@ -4,7 +4,7 @@ export GO111MODULE=on
 all: deps lint test build
 
 build:
-	go build -mod=vendor -o artifacts/svc
+	go build -mod=vendor -o artifacts/svc ./pkg/client
 
 lint:
 	golangci-lint run pkg/client

@@ -15,9 +15,9 @@ func TestAboutGet(t *testing.T) {
 		// Test request parameters
 		assert.Equal(t, req.URL.String(), "/about")
 		resp, err := json.Marshal(models.AppInfo{
-			Name:           "Name",
-			Version:        "Version",
-			Commit:         "Commit",
+			Name:    "Name",
+			Version: "Version",
+			Commit:  "Commit",
 		})
 		if err != nil {
 			log.Fatal("Can't marshall test model", err)
