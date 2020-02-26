@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"bitbucket.org/taglme/nfcd/utils"
 	uuid "github.com/nu7hatch/gouuid"
 )
 
@@ -46,7 +45,7 @@ func (e Event) ToResource() EventResource {
 		AdapterID:   e.AdapterID,
 		AdapterName: e.AdapterName,
 		Data:        e.Data,
-		CreatedAt:   utils.CreatedAtToString(e.CreatedAt),
+		CreatedAt:   e.CreatedAt.Format("2006-01-02T15:04:05.000Z"),
 	}
 	return resource
 }
