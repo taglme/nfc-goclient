@@ -1,13 +1,14 @@
 package models
 
+import "log"
+
 type Snippet struct {
-	Name          string
-	Category      SnippetCategory
-	UsageID       string
-	UsageName     string
-	DescriptionRu string
-	DescriptionEn string
-	Code          string
+	Name        string
+	Category    SnippetCategory
+	UsageID     string
+	UsageName   string
+	Description string
+	Code        string
 }
 
 type SnippetResource struct {
@@ -28,26 +29,22 @@ const (
 	AdapterSnippet
 )
 
-func (s Snippet) ToResource(locale string) SnippetResource {
-	var description string
-	switch locale {
-	case "en":
-		description = s.DescriptionEn
-	case "ru":
-		description = s.DescriptionRu
-	default:
-		description = s.DescriptionEn
+func (s SnippetResource) ToSnippet() Snippet {
+	c, ok := StringToSnippetCategory(s.Category)
+	if !ok {
+		log.Printf("Can't convert snippter resource category\n")
 	}
 
-	resource := SnippetResource{
+	snippet := Snippet{
 		Name:        s.Name,
-		Category:    s.Category.String(),
+		Category:    c,
 		UsageID:     s.UsageID,
 		UsageName:   s.UsageName,
-		Description: description,
+		Description: s.Description,
 		Code:        s.Code,
 	}
-	return resource
+
+	return snippet
 }
 
 func StringToSnippetCategory(s string) (SnippetCategory, bool) {
