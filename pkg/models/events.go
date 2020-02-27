@@ -48,7 +48,7 @@ func (e EventResource) ToEvent() (event Event, err error) {
 
 	t, err := time.Parse(time.RFC3339, e.CreatedAt)
 	if err != nil {
-		return Event{},errors.Wrap(err, "Can't parse event resource created at\n")
+		return Event{}, errors.Wrap(err, "Can't parse event resource created at\n")
 	}
 
 	return Event{

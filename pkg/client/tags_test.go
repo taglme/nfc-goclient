@@ -21,7 +21,7 @@ func TestTagsGetAll(t *testing.T) {
 			Type:        models.TagTypeBluetooth.String(),
 			AdapterID:   "id",
 			AdapterName: "name",
-			Uid:         "1693c07c-58ac-11ea-8e2d-0242ac130003",
+			Uid:         "za7VbYcSQU2zRgGQXQAm/g==",
 		}})
 		if err != nil {
 			log.Fatal("Can't marshall test model\n", err)
