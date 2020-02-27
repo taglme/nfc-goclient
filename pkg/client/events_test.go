@@ -70,7 +70,7 @@ func TestEventsGetAll(t *testing.T) {
 	defer server.Close()
 
 	api := newEventService(server.Client(), server.URL)
-	body, err := api.GetAll()
+	body, pagInfo, err := api.GetAll()
 
 	if err != nil {
 		log.Fatal("Can't get events\n", err)
@@ -80,6 +80,10 @@ func TestEventsGetAll(t *testing.T) {
 	assert.Equal(t, "adid", body[0].AdapterID)
 	assert.Equal(t, "adname", body[0].AdapterName)
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }
 
 func TestEventsGetFiltered(t *testing.T) {
@@ -115,7 +119,7 @@ func TestEventsGetFiltered(t *testing.T) {
 	api := newEventService(server.Client(), server.URL)
 	id := "1"
 	l := 1
-	body, err := api.GetFiltered(&id, EventFilter{
+	body, pagInfo, err := api.GetFiltered(&id, EventFilter{
 		Limit: &l,
 	})
 
@@ -127,6 +131,10 @@ func TestEventsGetFiltered(t *testing.T) {
 	assert.Equal(t, "adid", body[0].AdapterID)
 	assert.Equal(t, "adname", body[0].AdapterName)
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }
 
 func TestEventsAdd(t *testing.T) {

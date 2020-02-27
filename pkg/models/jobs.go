@@ -193,6 +193,15 @@ type JobStepResource struct {
 	Params  CommandParamsResource `json:"params" binding:"required"`
 }
 
+func (list JobListResource) GetPaginationInfo() PageInfo {
+	return PageInfo{
+		Total:  list.Total,
+		Length: list.Length,
+		Limit:  list.Limit,
+		Offset: list.Offset,
+	}
+}
+
 func (jobStep *JobStepResource) UnmarshalJSON(data []byte) error {
 
 	var obj map[string]interface{}

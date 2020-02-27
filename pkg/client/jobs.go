@@ -20,8 +20,8 @@ type JobFilter struct {
 }
 
 type JobService interface {
-	GetAll(adapterID string) ([]models.Job, error)
-	GetFiltered(adapterID string, filter JobFilter) ([]models.Job, error)
+	GetAll(adapterID string) ([]models.Job, models.PageInfo, error)
+	GetFiltered(adapterID string, filter JobFilter) ([]models.Job, models.PageInfo, error)
 	Delete(adapterID string, jobID string) error
 	DeleteAll(adapterID string) error
 	Get(adapterID string, jobID string) (models.Job, error)
@@ -46,7 +46,7 @@ func newJobService(c *http.Client, url string) JobService {
 }
 
 // Get Job list for adapter with all details
-func (s *jobService) GetAll(adapterID string) ([]models.Job, error) {
+func (s *jobService) GetAll(adapterID string) ([]models.Job, models.PageInfo, error) {
 	return s.GetFiltered(adapterID, JobFilter{})
 }
 
@@ -57,39 +57,39 @@ func (s *jobService) GetAll(adapterID string) ([]models.Job, error) {
 // filter.offset – Offset from start of list.
 // filter.sortBy – Sort field for list.
 // filter.sortDir – Sort direction for list
-func (s *jobService) GetFiltered(adapterID string, filter JobFilter) (jobs []models.Job, err error) {
+func (s *jobService) GetFiltered(adapterID string, filter JobFilter) (jobs []models.Job, pagInfo models.PageInfo, err error) {
 	targetUrl := s.url + s.basePath + "/" + adapterID + s.path + buildJobsQueryParams(filter)
 	resp, err := s.client.Get(targetUrl)
 	if err != nil {
-		return jobs, errors.Wrap(err, "Can't get jobs\n")
+		return jobs, pagInfo, errors.Wrap(err, "Can't get jobs\n")
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return jobs, errors.Wrap(err, "Can't convert jobs to byte slice\n")
+		return jobs, pagInfo, errors.Wrap(err, "Can't convert jobs to byte slice\n")
 	}
 
 	err = handleHttpResponseCode(resp.StatusCode, body)
 	if err != nil {
-		return jobs, errors.Wrap(err, "Error in fetching jobs\n")
+		return jobs, pagInfo, errors.Wrap(err, "Error in fetching jobs\n")
 	}
 
 	var jListResource models.JobListResource
 	err = json.Unmarshal(body, &jListResource)
 	if err != nil {
-		return jobs, errors.Wrap(err, "Can't unmarshal jobs response\n")
+		return jobs, pagInfo, errors.Wrap(err, "Can't unmarshal jobs response\n")
 	}
 
 	jobs = make([]models.Job, len(jListResource.Items))
 	for i, e := range jListResource.Items {
 		jobs[i], err = e.ToJob()
 		if err != nil {
-			return jobs, errors.Wrap(err, "Can't convert job resource to job model\n")
+			return jobs, pagInfo, errors.Wrap(err, "Can't convert job resource to job model\n")
 		}
 	}
 
-	return jobs, nil
+	return jobs, jListResource.GetPaginationInfo(), nil
 }
 
 // Get Job list for adapter with all details
