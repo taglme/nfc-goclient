@@ -2,9 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"log"
+	"github.com/pkg/errors"
 	"time"
 
 	uuid "github.com/nu7hatch/gouuid"
@@ -107,30 +106,18 @@ func (nj NewJob) ToJob(adapterID string, adapterName string) (Job, error) {
 	return j, nil
 }
 
-func (j JobResource) ToJob() Job {
+func (j JobResource) ToJob() (job Job, err error) {
 	t, err := time.Parse(time.RFC3339, j.CreatedAt)
 	if err != nil {
-		log.Printf("Can't parse job resource created at\n")
+		return job, errors.Wrap(err, "Can't parse job resource created at\n")
 	}
 
 	s, ok := StringToJobStatus(j.Status)
 	if !ok {
-		log.Printf("Can't convert job resource status\n")
+		return job, errors.Wrap(err, "Can't convert job resource status\n")
 	}
 
-	var jSteps []JobStep
-	for _, s := range j.Steps {
-		step, err := s.ToJobStep()
-
-		if err != nil {
-			log.Printf("Can't convert job step to the step model\n")
-			continue
-		}
-
-		jSteps = append(jSteps, step)
-	}
-
-	job := Job{
+	job = Job{
 		JobID:       j.JobID,
 		JobName:     j.JobName,
 		Status:      s,
@@ -141,11 +128,22 @@ func (j JobResource) ToJob() Job {
 		SuccessRuns: j.SuccessRuns,
 		ErrorRuns:   j.ErrorRuns,
 		ExpireAfter: j.ExpireAfter,
-		Steps:       jSteps,
 		CreatedAt:   t,
 	}
+	var jSteps []JobStep
+	for _, s := range j.Steps {
+		step, err := s.ToJobStep()
 
-	return job
+		if err != nil {
+			return job, errors.Wrap(err, "Can't convert job step to the step model\n")
+		}
+
+		jSteps = append(jSteps, step)
+	}
+
+	job.Steps = jSteps
+
+	return job, nil
 }
 
 type JobListResource struct {

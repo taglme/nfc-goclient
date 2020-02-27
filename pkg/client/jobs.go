@@ -83,7 +83,10 @@ func (s *jobService) GetFiltered(adapterID string, filter JobFilter) (jobs []mod
 
 	jobs = make([]models.Job, len(jListResource.Items))
 	for i, e := range jListResource.Items {
-		jobs[i] = e.ToJob()
+		jobs[i], err = e.ToJob()
+		if err != nil {
+			return jobs, errors.Wrap(err, "Can't convert job resource to job model\n")
+		}
 	}
 
 	return jobs, nil
@@ -116,7 +119,7 @@ func (s *jobService) Get(adapterID string, jobID string) (job models.Job, err er
 		return job, errors.Wrap(err, "Can't unmarshal job response\n")
 	}
 
-	return jResource.ToJob(), nil
+	return jResource.ToJob()
 }
 
 // Send job with list of steps to adapter
@@ -149,7 +152,7 @@ func (s *jobService) Add(adapterID string, job models.NewJob) (event models.Job,
 		return event, errors.Wrap(err, "Can't unmarshal post job response \n")
 	}
 
-	return eRes.ToJob(), nil
+	return eRes.ToJob()
 }
 
 // Delete all jobs from adapter
@@ -244,7 +247,7 @@ func (s *jobService) UpdateStatus(adapterID string, jobID string, status models.
 		return job, errors.Wrap(err, "Can't unmarshal patch job status response \n")
 	}
 
-	return eRes.ToJob(), nil
+	return eRes.ToJob()
 }
 
 // Function builds jobs get query params

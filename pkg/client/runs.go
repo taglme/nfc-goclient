@@ -80,7 +80,10 @@ func (s *runService) GetFiltered(adapterID string, filter RunFilter) (runs []mod
 
 	runs = make([]models.JobRun, len(rListResource.Items))
 	for i, e := range rListResource.Items {
-		runs[i] = e.ToJobRun()
+		runs[i], err = e.ToJobRun()
+		if err != nil {
+			return runs, errors.Wrap(err, "Can't convert job run resource to job run model\n")
+		}
 	}
 
 	return runs, nil
@@ -113,7 +116,7 @@ func (s *runService) Get(adapterID string, runID string) (run models.JobRun, err
 		return run, errors.Wrap(err, "Can't unmarshal run response\n")
 	}
 
-	return rResource.ToJobRun(), nil
+	return rResource.ToJobRun()
 }
 
 // Function builds runs get query params

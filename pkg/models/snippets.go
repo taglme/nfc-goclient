@@ -32,10 +32,10 @@ const (
 func (s SnippetResource) ToSnippet() Snippet {
 	c, ok := StringToSnippetCategory(s.Category)
 	if !ok {
-		log.Printf("Can't convert snippter resource category\n")
+		log.Printf("Can't convert snippet resource category\n")
 	}
 
-	snippet := Snippet{
+	return Snippet{
 		Name:        s.Name,
 		Category:    c,
 		UsageID:     s.UsageID,
@@ -43,8 +43,6 @@ func (s SnippetResource) ToSnippet() Snippet {
 		Description: s.Description,
 		Code:        s.Code,
 	}
-
-	return snippet
 }
 
 func StringToSnippetCategory(s string) (SnippetCategory, bool) {

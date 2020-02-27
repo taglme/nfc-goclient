@@ -2,8 +2,8 @@ package models
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 )
 
@@ -75,7 +75,7 @@ func (t Tag) ToShortResource() TagShortResource {
 	return resource
 }
 
-func (t TagShortResource) ToTag() Tag {
+func (t TagShortResource) ToTag() (tag Tag, err error) {
 	tType, ok := StringToTagType(t.Type)
 	if !ok {
 		log.Printf("Can't convert type resource category\n")
@@ -83,17 +83,16 @@ func (t TagShortResource) ToTag() Tag {
 
 	uuid, err := base64.StdEncoding.DecodeString(t.Uid)
 	if err != nil {
-		log.Printf("Can't decode tag uuid\n")
+		return tag, errors.Wrap(err, "Can't decode tag uuid\n")
 	}
 
-	tag := Tag{
+	return Tag{
 		TagID:       t.TagID,
 		Type:        tType,
 		AdapterID:   t.AdapterID,
 		AdapterName: t.AdapterName,
 		Uid:         uuid,
-	}
-	return tag
+	}, nil
 }
 
 func (t TagResource) ToTag() (Tag, error) {
