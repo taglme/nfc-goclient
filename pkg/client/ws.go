@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/taglme/nfc-client/pkg/models"
@@ -65,7 +66,20 @@ func (s *wsService) SetLocale(locale string) (err error) {
 		return errors.New("Can't set locale. Connection were not initialized")
 	}
 
-	body, err := json.Marshal(models.SetLocaleParamsResource{Locale: locale})
+	loc, ok := models.StringToLocale(locale)
+	if !ok {
+		loc = models.LocaleEn
+	}
+	jobStep := models.JobStep{
+		Command: models.CommandSetLocale,
+		Params: models.SetLocaleParams{
+			Locale: loc,
+		},
+	}
+
+	jobStepResource := jobStep.ToResource()
+
+	body, err := json.Marshal(jobStepResource)
 	if err != nil {
 		return errors.Wrap(err, "Error on marshall set locale resource")
 	}

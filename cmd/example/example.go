@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	client := client.New("http://127.0.0.1:3011")
+	client := client.New("http://127.0.0.1:3011", "en")
 	adapters, err := client.Adapters.GetAll()
 	if err != nil {
 		fmt.Println(err)

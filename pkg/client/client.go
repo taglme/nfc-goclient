@@ -3,8 +3,9 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/taglme/nfc-client/pkg/models"
 	"net/http"
+
+	"github.com/taglme/nfc-client/pkg/models"
 )
 
 type Client struct {
@@ -21,6 +22,12 @@ type Client struct {
 
 func New(url string, locale string) *Client {
 	httpClient := &http.Client{}
+
+	//Set default locale in case of unknown locale
+	_, ok := models.StringToLocale(locale)
+	if !ok {
+		locale = models.LocaleEn.String()
+	}
 
 	rt := withHeader(httpClient.Transport)
 	rt.Set("Accept-Language", locale)
