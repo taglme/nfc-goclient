@@ -17,6 +17,7 @@ type WsService interface {
 	OnEvent(EventHandler)
 	ConnString() string
 	OnError(ErrorHandler)
+	SetLocale(locale string) error
 }
 
 type wsService struct {
@@ -56,6 +57,24 @@ func (s *wsService) Disconnect() (err error) {
 		return errors.Wrap(err, "Error on close WS connection")
 	}
 	s.conn = nil
+	return nil
+}
+
+func (s *wsService) SetLocale(locale string) (err error) {
+	if s.conn == nil {
+		return errors.New("Can't set locale. Connection were not initialized")
+	}
+
+	body, err := json.Marshal(models.SetLocaleParamsResource{Locale: locale})
+	if err != nil {
+		return errors.Wrap(err, "Error on marshall set locale resource")
+	}
+
+	err = s.conn.WriteMessage(websocket.TextMessage, body)
+	if err != nil {
+		return errors.Wrap(err, "Error on send set locale resource")
+	}
+
 	return nil
 }
 
