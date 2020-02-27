@@ -16,10 +16,15 @@ type Client struct {
 	Runs     RunService
 	Jobs     JobService
 	Ws       WsService
+	locale   string
 }
 
-func New(url string) *Client {
+func New(url string, locale string) *Client {
 	httpClient := &http.Client{}
+
+	rt := withHeader(httpClient.Transport)
+	rt.Set("Accept-Language", locale)
+	httpClient.Transport = rt
 
 	return &Client{
 		Adapters: newAdapterService(httpClient, url),
@@ -30,6 +35,7 @@ func New(url string) *Client {
 		Runs:     newRunService(httpClient, url),
 		Jobs:     newJobService(httpClient, url),
 		Ws:       newWsService(url),
+		locale:   locale,
 	}
 }
 
@@ -45,4 +51,25 @@ func handleHttpResponseCode(statusCode int, body []byte) (err error) {
 	}
 
 	return err
+}
+
+type withHeaderStruct struct {
+	http.Header
+	rt http.RoundTripper
+}
+
+func withHeader(rt http.RoundTripper) withHeaderStruct {
+	if rt == nil {
+		rt = http.DefaultTransport
+	}
+
+	return withHeaderStruct{Header: make(http.Header), rt: rt}
+}
+
+func (h withHeaderStruct) RoundTrip(req *http.Request) (*http.Response, error) {
+	for k, v := range h.Header {
+		req.Header[k] = v
+	}
+
+	return h.rt.RoundTrip(req)
 }
