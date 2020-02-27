@@ -81,7 +81,7 @@ func (j JobRunResource) ToJobRun() (job JobRun, err error) {
 		results = append(results, stepRes)
 	}
 
-	job.Results =  results
+	job.Results = results
 
 	return job, nil
 }
