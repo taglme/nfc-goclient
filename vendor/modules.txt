@@ -2,6 +2,8 @@
 github.com/davecgh/go-spew/spew
 # github.com/emersion/go-vcard v0.0.0-20191221110513-5f81fa0d3cc7
 github.com/emersion/go-vcard
+# github.com/gorilla/websocket v1.4.1
+github.com/gorilla/websocket
 # github.com/hsanjuan/go-ndef v0.0.0-20181124005326-4235d2635a81
 github.com/hsanjuan/go-ndef
 github.com/hsanjuan/go-ndef/types/absoluteuri
