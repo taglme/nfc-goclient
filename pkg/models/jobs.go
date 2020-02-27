@@ -3,8 +3,9 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
@@ -228,7 +229,7 @@ func (jobStep *JobStepResource) UnmarshalJSON(data []byte) error {
 	}
 
 	var paramsBytes []byte
-	paramsBytes, err = json.Marshal(obj["params"])
+	paramsBytes, _ = json.Marshal(obj["params"])
 	switch command {
 	case CommandGetTags:
 		r := GetTagsParamsResource{}

@@ -103,7 +103,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 	}
 
 	var dataBytes []byte
-	dataBytes, err = json.Marshal(obj["data"])
+	dataBytes, _ = json.Marshal(obj["data"])
 	switch recordType {
 	case NdefRecordPayloadTypeRaw:
 		r := NdefRecordPayloadRawResource{}
@@ -377,10 +377,7 @@ type NdefRecordPayloadUrlResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadUrl) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadUrlResource{
-		Url: ndefRecordPayload.Url,
-	}
-	return resource
+	return NdefRecordPayloadUrlResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadUrl) ToRecord() *ndef.Record {
@@ -393,10 +390,7 @@ func (ndefRecordPayload NdefRecordPayloadUrl) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadUrlResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadUrl{
-		Url: ndefRecordPayloadResource.Url,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadUrl(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadText struct {
@@ -409,11 +403,7 @@ type NdefRecordPayloadTextResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadText) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadTextResource{
-		Text: ndefRecordPayload.Text,
-		Lang: ndefRecordPayload.Lang,
-	}
-	return resource
+	return NdefRecordPayloadTextResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadText) ToRecord() *ndef.Record {
@@ -431,11 +421,7 @@ func (ndefRecordPayload NdefRecordPayloadText) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadTextResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadText{
-		Text: ndefRecordPayloadResource.Text,
-		Lang: ndefRecordPayloadResource.Lang,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadText(ndefRecordPayloadResource), nil
 }
 
 func LangToCode(lang string) string {
@@ -540,10 +526,7 @@ type NdefRecordPayloadUriResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadUri) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadUriResource{
-		Uri: ndefRecordPayload.Uri,
-	}
-	return resource
+	return NdefRecordPayloadUriResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadUri) ToRecord() *ndef.Record {
@@ -556,10 +539,7 @@ func (ndefRecordPayload NdefRecordPayloadUri) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadUriResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadUri{
-		Uri: ndefRecordPayloadResource.Uri,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadUri(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadVcard struct {
@@ -596,23 +576,7 @@ type NdefRecordPayloadVcardResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadVcard) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadVcardResource{
-		AddressCity:       ndefRecordPayload.AddressCity,
-		AddressCountry:    ndefRecordPayload.AddressCountry,
-		AddressPostalCode: ndefRecordPayload.AddressPostalCode,
-		AddressRegion:     ndefRecordPayload.AddressRegion,
-		AddressStreet:     ndefRecordPayload.AddressStreet,
-		Email:             ndefRecordPayload.Email,
-		FirstName:         ndefRecordPayload.FirstName,
-		LastName:          ndefRecordPayload.LastName,
-		Organization:      ndefRecordPayload.Organization,
-		PhoneCell:         ndefRecordPayload.PhoneCell,
-		PhoneHome:         ndefRecordPayload.PhoneHome,
-		PhoneWork:         ndefRecordPayload.PhoneWork,
-		Title:             ndefRecordPayload.Title,
-		Site:              ndefRecordPayload.Site,
-	}
-	return resource
+	return NdefRecordPayloadVcardResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadVcard) ToRecord() *ndef.Record {
@@ -704,23 +668,7 @@ func (ndefRecordPayload NdefRecordPayloadVcard) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadVcardResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadVcard{
-		AddressCity:       ndefRecordPayloadResource.AddressCity,
-		AddressCountry:    ndefRecordPayloadResource.AddressCountry,
-		AddressPostalCode: ndefRecordPayloadResource.AddressPostalCode,
-		AddressRegion:     ndefRecordPayloadResource.AddressRegion,
-		AddressStreet:     ndefRecordPayloadResource.AddressStreet,
-		Email:             ndefRecordPayloadResource.Email,
-		FirstName:         ndefRecordPayloadResource.FirstName,
-		LastName:          ndefRecordPayloadResource.LastName,
-		Organization:      ndefRecordPayloadResource.Organization,
-		PhoneCell:         ndefRecordPayloadResource.PhoneCell,
-		PhoneHome:         ndefRecordPayloadResource.PhoneHome,
-		PhoneWork:         ndefRecordPayloadResource.PhoneWork,
-		Title:             ndefRecordPayloadResource.Title,
-		Site:              ndefRecordPayloadResource.Site,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadVcard(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadMime struct {
@@ -841,10 +789,7 @@ type NdefRecordPayloadPhoneResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadPhone) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadPhoneResource{
-		PhoneNumber: ndefRecordPayload.PhoneNumber,
-	}
-	return resource
+	return NdefRecordPayloadPhoneResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadPhone) ToRecord() *ndef.Record {
@@ -856,10 +801,7 @@ func (ndefRecordPayload NdefRecordPayloadPhone) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadPhoneResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadPhone{
-		PhoneNumber: ndefRecordPayloadResource.PhoneNumber,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadPhone(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadGeo struct {
@@ -872,11 +814,7 @@ type NdefRecordPayloadGeoResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadGeo) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadGeoResource{
-		Latitude:  ndefRecordPayload.Latitude,
-		Longitude: ndefRecordPayload.Longitude,
-	}
-	return resource
+	return NdefRecordPayloadGeoResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadGeo) ToRecord() *ndef.Record {
@@ -889,11 +827,7 @@ func (ndefRecordPayload NdefRecordPayloadGeo) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadGeoResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadGeo{
-		Latitude:  ndefRecordPayloadResource.Latitude,
-		Longitude: ndefRecordPayloadResource.Longitude,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadGeo(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadAar struct {
@@ -904,10 +838,7 @@ type NdefRecordPayloadAarResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadAar) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadAarResource{
-		PackageName: ndefRecordPayload.PackageName,
-	}
-	return resource
+	return NdefRecordPayloadAarResource(ndefRecordPayload)
 }
 func (ndefRecordPayload NdefRecordPayloadAar) ToRecord() *ndef.Record {
 	record := ndef.NewExternalRecord("android.com:pkg", []byte(ndefRecordPayload.PackageName))
@@ -918,10 +849,7 @@ func (ndefRecordPayload NdefRecordPayloadAar) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadAarResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadAar{
-		PackageName: ndefRecordPayloadResource.PackageName,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadAar(ndefRecordPayloadResource), nil
 }
 
 type NdefRecordPayloadPoster struct {
@@ -934,11 +862,7 @@ type NdefRecordPayloadPosterResource struct {
 }
 
 func (ndefRecordPayload NdefRecordPayloadPoster) ToResource() NdefRecordPayloadResource {
-	resource := NdefRecordPayloadPosterResource{
-		Title: ndefRecordPayload.Title,
-		Uri:   ndefRecordPayload.Uri,
-	}
-	return resource
+	return NdefRecordPayloadPosterResource(ndefRecordPayload)
 }
 
 func (ndefRecordPayload NdefRecordPayloadPoster) ToRecord() *ndef.Record {
@@ -956,11 +880,7 @@ func (ndefRecordPayload NdefRecordPayloadPoster) String() string {
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadPosterResource) ToPayload() (NdefRecordPayload, error) {
-	ndefRecordPayload := NdefRecordPayloadPoster{
-		Title: ndefRecordPayloadResource.Title,
-		Uri:   ndefRecordPayloadResource.Uri,
-	}
-	return ndefRecordPayload, nil
+	return NdefRecordPayloadPoster(ndefRecordPayloadResource), nil
 }
 
 func RecordToNdefRecord(record *ndef.Record) NdefRecord {

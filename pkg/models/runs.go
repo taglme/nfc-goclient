@@ -2,9 +2,10 @@ package models
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"time"
+
+	"github.com/pkg/errors"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
@@ -25,7 +26,7 @@ func (j Job) ToJobRun() JobRun {
 	id, _ := uuid.NewV4()
 	createdAt := time.Now().UTC()
 	stepResults := make([]StepResult, len(j.Steps))
-	for i, _ := range stepResults {
+	for i := range stepResults {
 		stepResults[i] = j.Steps[i].ToStepResult()
 	}
 

@@ -520,18 +520,8 @@ type PageDumpResource struct {
 }
 
 func (pageDump PageDump) ToResource() PageDumpResource {
-	resource := PageDumpResource{
-		Page: pageDump.Page,
-		Data: pageDump.Data,
-		Info: pageDump.Info,
-	}
-	return resource
+	return PageDumpResource(pageDump)
 }
 func (pageDumpResource PageDumpResource) ToPageDump() PageDump {
-	params := PageDump{
-		Page: pageDumpResource.Page,
-		Data: pageDumpResource.Data,
-		Info: pageDumpResource.Info,
-	}
-	return params
+	return PageDump(pageDumpResource)
 }
