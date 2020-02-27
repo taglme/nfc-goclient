@@ -67,7 +67,7 @@ func TestRunsGetAll(t *testing.T) {
 	defer server.Close()
 
 	api := newRunService(server.Client(), server.URL)
-	body, err := api.GetAll("id")
+	body, pagInfo, err := api.GetAll("id")
 
 	if err != nil {
 		log.Fatal("Can't get runs\n", err)
@@ -78,6 +78,10 @@ func TestRunsGetAll(t *testing.T) {
 	assert.Equal(t, "adname", body[0].AdapterName)
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
 	assert.Equal(t, models.CommandGetDump, body[0].Results[0].Command)
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }
 
 func TestRunsGetFiltered(t *testing.T) {
@@ -112,7 +116,7 @@ func TestRunsGetFiltered(t *testing.T) {
 
 	api := newRunService(server.Client(), server.URL)
 	jId := "id"
-	body, err := api.GetFiltered("id", RunFilter{
+	body, pagInfo, err := api.GetFiltered("id", RunFilter{
 		JobID: &jId,
 	})
 
@@ -125,4 +129,8 @@ func TestRunsGetFiltered(t *testing.T) {
 	assert.Equal(t, "adname", body[0].AdapterName)
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
 	assert.Equal(t, models.CommandGetDump, body[0].Results[0].Command)
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }

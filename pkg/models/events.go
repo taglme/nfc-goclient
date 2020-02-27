@@ -61,6 +61,16 @@ func (e EventResource) ToEvent() (event Event, err error) {
 	}, nil
 }
 
+
+func (list EventListResource) GetPaginationInfo() PageInfo {
+	return PageInfo{
+		Total:  list.Total,
+		Length: list.Length,
+		Limit:  list.Limit,
+		Offset: list.Offset,
+	}
+}
+
 func (e Event) ToResource() EventResource {
 	resource := EventResource{
 		EventID:     e.EventID,

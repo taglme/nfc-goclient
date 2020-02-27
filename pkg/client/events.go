@@ -20,8 +20,8 @@ type EventFilter struct {
 }
 
 type EventService interface {
-	GetAll() ([]models.Event, error)
-	GetFiltered(adapterID *string, filter EventFilter) ([]models.Event, error)
+	GetAll() ([]models.Event, models.PageInfo, error)
+	GetFiltered(adapterID *string, filter EventFilter) ([]models.Event, models.PageInfo, error)
 	Add(event models.NewEvent) (models.Event, error)
 }
 
@@ -40,7 +40,7 @@ func newEventService(c *http.Client, url string) EventService {
 }
 
 // Endpoint returns information about events.
-func (s *eventService) GetAll() ([]models.Event, error) {
+func (s *eventService) GetAll() ([]models.Event, models.PageInfo, error) {
 	return s.GetFiltered(nil, EventFilter{})
 }
 
@@ -50,39 +50,39 @@ func (s *eventService) GetAll() ([]models.Event, error) {
 // filter.offset – Offset from start of list.
 // filter.sortby – Sort field for list.
 // filter.sortdir – Sort direction for list
-func (s *eventService) GetFiltered(adapterID *string, filter EventFilter) (events []models.Event, err error) {
+func (s *eventService) GetFiltered(adapterID *string, filter EventFilter) (events []models.Event, pagInfo models.PageInfo, err error) {
 	queryParams := buildEventsQueryParams(adapterID, filter)
 	resp, err := s.client.Get(s.url + s.path + queryParams)
 	if err != nil {
-		return events, errors.Wrap(err, "Can't get events\n")
+		return events, pagInfo, errors.Wrap(err, "Can't get events\n")
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return events, errors.Wrap(err, "Can't convert events to byte slice\n")
+		return events, pagInfo, errors.Wrap(err, "Can't convert events to byte slice\n")
 	}
 
 	err = handleHttpResponseCode(resp.StatusCode, body)
 	if err != nil {
-		return events, errors.Wrap(err, "Error in fetching events\n")
+		return events, pagInfo, errors.Wrap(err, "Error in fetching events\n")
 	}
 
 	var eListResource models.EventListResource
 	err = json.Unmarshal(body, &eListResource)
 	if err != nil {
-		return events, errors.Wrap(err, "Can't unmarshal events response\n")
+		return events, pagInfo, errors.Wrap(err, "Can't unmarshal events response\n")
 	}
 
 	events = make([]models.Event, len(eListResource.Items))
 	for i, e := range eListResource.Items {
 		events[i], err = e.ToEvent()
 		if err != nil {
-			return events, errors.Wrap(err, "Can't convert event resource to event model\n")
+			return events, pagInfo, errors.Wrap(err, "Can't convert event resource to event model\n")
 		}
 	}
 
-	return events, nil
+	return events, eListResource.GetPaginationInfo(), nil
 }
 
 // Send event to service

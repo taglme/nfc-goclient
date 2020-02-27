@@ -69,7 +69,7 @@ func TestJobsGetAll(t *testing.T) {
 	defer server.Close()
 
 	api := newJobService(server.Client(), server.URL)
-	body, err := api.GetAll("id")
+	body, pagInfo, err := api.GetAll("id")
 
 	if err != nil {
 		log.Fatal("Can't get jobs\n", err)
@@ -81,6 +81,10 @@ func TestJobsGetAll(t *testing.T) {
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
 	assert.Equal(t, models.JobStatusActive, body[0].Status)
 	assert.Equal(t, models.CommandRemovePassword, body[0].Steps[0].Command)
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }
 
 func TestJobsGetFiltered(t *testing.T) {
@@ -120,7 +124,7 @@ func TestJobsGetFiltered(t *testing.T) {
 	api := newJobService(server.Client(), server.URL)
 	s := models.JobStatusActive
 	sortDir := "asc"
-	body, err := api.GetFiltered("id", JobFilter{
+	body, pagInfo, err := api.GetFiltered("id", JobFilter{
 		Status:  &s,
 		SortDir: &sortDir,
 	})
@@ -135,6 +139,10 @@ func TestJobsGetFiltered(t *testing.T) {
 	assert.Equal(t, "2006-01-02T15:04:05Z", body[0].CreatedAt.Format(time.RFC3339))
 	assert.Equal(t, models.JobStatusActive, body[0].Status)
 	assert.Equal(t, models.CommandRemovePassword, body[0].Steps[0].Command)
+	assert.Equal(t, 0, pagInfo.Total)
+	assert.Equal(t, 0, pagInfo.Offset)
+	assert.Equal(t, 0, pagInfo.Limit)
+	assert.Equal(t, 0, pagInfo.Length)
 }
 
 func TestJobsGet(t *testing.T) {

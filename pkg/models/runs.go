@@ -149,6 +149,15 @@ func StringToJobRunStatus(s string) (JobRunStatus, bool) {
 	return 0, false
 }
 
+func (list JobRunListResource) GetPaginationInfo() PageInfo {
+	return PageInfo{
+		Total:  list.Total,
+		Length: list.Length,
+		Limit:  list.Limit,
+		Offset: list.Offset,
+	}
+}
+
 func (jobRunStatus JobRunStatus) String() string {
 	names := [...]string{
 		"unknown",
