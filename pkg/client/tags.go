@@ -59,7 +59,10 @@ func (s *tagService) GetAll(adapterID string, tagType *models.TagType) (tags []m
 
 	tags = make([]models.Tag, len(tListResource))
 	for i, t := range tListResource {
-		tags[i] = t.ToTag()
+		tags[i], err = t.ToTag()
+		if err != nil {
+			return tags, errors.Wrap(err, "Can't convert tag resource to tag model\n")
+		}
 	}
 
 	return tags, nil

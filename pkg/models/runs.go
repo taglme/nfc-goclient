@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"time"
 
@@ -42,7 +43,7 @@ func (j Job) ToJobRun() JobRun {
 	return jobRun
 }
 
-func (j JobRunResource) ToJobRun() JobRun {
+func (j JobRunResource) ToJobRun() (job JobRun, err error) {
 	s, ok := StringToJobRunStatus(j.Status)
 	if !ok {
 		log.Printf("Can't convert job run resource status\n")
@@ -50,27 +51,15 @@ func (j JobRunResource) ToJobRun() JobRun {
 
 	t, err := time.Parse(time.RFC3339, j.CreatedAt)
 	if err != nil {
-		log.Printf("Can't parse job run resource created at\n")
+		return job, errors.Wrap(err, "Can't parse job run resource created at\n")
 	}
 
 	tag, err := j.Tag.ToTag()
 	if err != nil {
-		log.Printf("Can't convert job run tag resource\n")
+		return job, errors.Wrap(err, "Can't convert job run tag resource\n")
 	}
 
-	var results []StepResult
-	for _, r := range j.Results {
-		stepRes, err := r.ToStepResult()
-
-		if err != nil {
-			log.Printf("Can't convert job run result to the step result model\n")
-			continue
-		}
-
-		results = append(results, stepRes)
-	}
-
-	job := JobRun{
+	job = JobRun{
 		RunID:       j.RunID,
 		JobID:       j.JobID,
 		JobName:     j.JobName,
@@ -78,11 +67,23 @@ func (j JobRunResource) ToJobRun() JobRun {
 		AdapterID:   j.AdapterID,
 		AdapterName: j.AdapterName,
 		Tag:         tag,
-		Results:     results,
 		CreatedAt:   t,
 	}
 
-	return job
+	var results []StepResult
+	for _, r := range j.Results {
+		stepRes, err := r.ToStepResult()
+
+		if err != nil {
+			return job, errors.Wrap(err, "Can't convert job run result to the step result model\n")
+		}
+
+		results = append(results, stepRes)
+	}
+
+	job.Results =  results
+
+	return job, nil
 }
 
 type JobRunResource struct {

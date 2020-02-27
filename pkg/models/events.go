@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/pkg/errors"
 	"log"
 	"time"
 
@@ -39,7 +40,7 @@ type EventListResource struct {
 	Items  []EventResource `json:"items"`
 }
 
-func (e EventResource) ToEvent() Event {
+func (e EventResource) ToEvent() (event Event, err error) {
 	eName, ok := StringToEventName(e.Name)
 	if !ok {
 		log.Printf("Can't convert event resource name to event name\n")
@@ -47,19 +48,17 @@ func (e EventResource) ToEvent() Event {
 
 	t, err := time.Parse(time.RFC3339, e.CreatedAt)
 	if err != nil {
-		log.Printf("Can't parse event resource created at\n")
+		return Event{},errors.Wrap(err, "Can't parse event resource created at\n")
 	}
 
-	event := Event{
+	return Event{
 		EventID:     e.EventID,
 		Name:        eName,
 		AdapterID:   e.AdapterID,
 		AdapterName: e.AdapterName,
 		Data:        e.Data,
 		CreatedAt:   t,
-	}
-
-	return event
+	}, nil
 }
 
 func (e Event) ToResource() EventResource {

@@ -76,7 +76,10 @@ func (s *eventService) GetFiltered(adapterID *string, filter EventFilter) (event
 
 	events = make([]models.Event, len(eListResource.Items))
 	for i, e := range eListResource.Items {
-		events[i] = e.ToEvent()
+		events[i], err = e.ToEvent()
+		if err != nil {
+			return events, errors.Wrap(err, "Can't convert event resource to event model\n")
+		}
 	}
 
 	return events, nil
@@ -111,7 +114,7 @@ func (s *eventService) Add(ne models.NewEvent) (event models.Event, err error) {
 		return event, errors.Wrap(err, "Can't unmarshal post event response \n")
 	}
 
-	return eRes.ToEvent(), nil
+	return eRes.ToEvent()
 }
 
 // Function builds events get query params
