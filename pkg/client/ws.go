@@ -37,6 +37,7 @@ func newWsService(url string) WsService {
 	}
 }
 
+// Creating a WS connection and start listening for messages
 func (s *wsService) Connect() (err error) {
 	s.conn, _, err = websocket.DefaultDialer.Dial(s.url+s.path, nil)
 	if err != nil {
@@ -47,10 +48,12 @@ func (s *wsService) Connect() (err error) {
 	return nil
 }
 
+// Checks if WS connection is established
 func (s *wsService) IsConnected() bool {
 	return s.conn != nil
 }
 
+// Closing the WS connection and stop listening for messages
 func (s *wsService) Disconnect() (err error) {
 	err = s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "WS connection closed"))
 	if err != nil {
@@ -60,6 +63,8 @@ func (s *wsService) Disconnect() (err error) {
 	return nil
 }
 
+// Sending a message to set locale via WS connection
+// locale – locale identifier string
 func (s *wsService) SetLocale(locale string) (err error) {
 	if s.conn == nil {
 		return errors.New("Can't set locale. Connection were not initialized")
@@ -91,26 +96,35 @@ func (s *wsService) SetLocale(locale string) (err error) {
 	return nil
 }
 
+// Handle event
+// handler – Function which is called once event is emitted
 func (s *wsService) OnEvent(handler EventHandler) {
 	s.handlers = append(s.handlers, handler)
 }
 
+// Handle error
+// h – Function which is called once error is emitted
 func (s *wsService) OnError(h ErrorHandler) {
 	s.errorHandlers = append(s.errorHandlers, h)
 }
 
+// Pass event to the registered event handlers
+// e – Event
 func (s *wsService) eventListener(e models.Event) {
 	for _, handler := range s.handlers {
 		handler(e)
 	}
 }
 
+// Pass error to the registered error handlers
+// e – error
 func (s *wsService) errListener(e error) {
 	for _, handler := range s.errorHandlers {
 		handler(e)
 	}
 }
 
+// Waiting for and parsing the messages from WS connection
 func (s *wsService) read() {
 	defer func() {
 		if s.conn != nil {
@@ -146,6 +160,7 @@ func (s *wsService) read() {
 	}
 }
 
+// Get WS target url
 func (s *wsService) ConnString() string {
 	return s.url + s.path
 }

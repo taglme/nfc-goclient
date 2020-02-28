@@ -29,6 +29,9 @@ func newTagService(c *http.Client, url string) TagService {
 	}
 }
 
+// Get all adapter's tags
+// adapterID – Unique identifier in form of UUID representing a specific adapter.
+// tagType – Tags' type filter.
 func (s *tagService) GetAll(adapterID string, tagType *models.TagType) (tags []models.Tag, err error) {
 	targetUrl := s.url + s.basePath + "/" + adapterID + s.path
 	if tagType != nil {
@@ -68,6 +71,9 @@ func (s *tagService) GetAll(adapterID string, tagType *models.TagType) (tags []m
 	return tags, nil
 }
 
+// Get all specified tag's details in adapter
+// adapterID – Unique identifier in form of UUID representing a specific adapter.
+// tagID – Unique identifier in form of UUID representing a specific tag.
 func (s *tagService) Get(adapterID string, tagID string) (tag models.Tag, err error) {
 	targetUrl := s.url + s.basePath + "/" + adapterID + s.path + "/" + tagID
 

@@ -32,10 +32,13 @@ func newAdapterService(client *http.Client, url string) AdapterService {
 	}
 }
 
+// Adapters list endpoint returns information about all adapters. The response includes array of Adapters
 func (s *adapterService) GetAll() (adapters []models.Adapter, err error) {
 	return s.GetFiltered(nil)
 }
 
+// Adapters list endpoint returns information about all adapters. The response includes array of Adapters
+// adapterType – Adapters' type filter.
 func (s *adapterService) GetFiltered(adapterType *models.AdapterType) (adapters []models.Adapter, err error) {
 	queryParams := ""
 	if adapterType != nil {
@@ -72,6 +75,8 @@ func (s *adapterService) GetFiltered(adapterType *models.AdapterType) (adapters 
 	return adapters, nil
 }
 
+// Get adapter with all details
+// adapterID – Unique identifier in form of UUID representing a specific adapter.
 func (s *adapterService) Get(adapterID string) (adapter models.Adapter, err error) {
 	resp, err := s.client.Get(s.url + s.path + "/" + adapterID)
 	if err != nil {
