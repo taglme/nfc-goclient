@@ -2,8 +2,7 @@ package client
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 
@@ -15,95 +14,86 @@ type AdapterFilter struct {
 }
 type AdapterService interface {
 	GetAll() ([]models.Adapter, error)
-	GetFiltered(adapterType models.AdapterType) ([]models.Adapter, error)
+	GetFiltered(adapterType *models.AdapterType) ([]models.Adapter, error)
 	Get(adapterID string) (models.Adapter, error)
 }
 
 type adapterService struct {
 	url    string
 	client *http.Client
+	path   string
 }
 
 func newAdapterService(client *http.Client, url string) AdapterService {
 	return &adapterService{
 		url:    url,
 		client: client,
+		path:   "/adapters",
 	}
 }
 
-func (s *adapterService) GetAll() ([]models.Adapter, error) {
-	return s.GetFiltered(0)
+func (s *adapterService) GetAll() (adapters []models.Adapter, err error) {
+	return s.GetFiltered(nil)
 }
 
-func (s *adapterService) GetFiltered(adapterType models.AdapterType) (adapters []models.Adapter, err error) {
-	var adaptersListResource models.AdapterListResource
-	targetURL := s.url + "/adapters"
-	adapterTypeStr := adapterType.String()
-	if adapterTypeStr != "" {
-		targetURL = targetURL + "?type=" + adapterTypeStr
+func (s *adapterService) GetFiltered(adapterType *models.AdapterType) (adapters []models.Adapter, err error) {
+	queryParams := ""
+	if adapterType != nil {
+		queryParams += "?type=" + adapterType.String()
 	}
-	resp, err := s.client.Get(targetURL)
+
+	resp, err := s.client.Get(s.url + s.path + queryParams)
 	if err != nil {
-		return
+		return adapters, errors.Wrap(err, "Can't get adapters\n")
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return
-	}
-	if resp.StatusCode != http.StatusOK {
-		var errorResponse models.ErrorResponse
-		err = json.Unmarshal(body, &errorResponse)
-		if err != nil {
-			return
-		}
-		err = fmt.Errorf("Server responded with error. Error message: %s. Error info: %s", errorResponse.Message, errorResponse.Info)
-		return
+		return adapters, errors.Wrap(err, "Can't convert adapters to byte slice\n")
 	}
 
-	err = json.Unmarshal(body, &adaptersListResource)
+	err = handleHttpResponseCode(resp.StatusCode, body)
 	if err != nil {
-		return
+		return adapters, errors.Wrap(err, "Error in fetching adapters\n")
 	}
-	for _, adapterShortResource := range adaptersListResource {
-		adapters = append(adapters, adapterShortResource.ToAdapter())
+
+	var aListResource models.AdapterListResource
+	err = json.Unmarshal(body, &aListResource)
+	if err != nil {
+		return adapters, errors.Wrap(err, "Can't unmarshal events response\n")
 	}
-	return
+
+	adapters = make([]models.Adapter, len(aListResource))
+	for i, a := range aListResource {
+		adapters[i] = a.ToAdapter()
+	}
+
+	return adapters, nil
 }
+
 func (s *adapterService) Get(adapterID string) (adapter models.Adapter, err error) {
-	var adapterResource models.AdapterResource
-	if adapterID == "" {
-		err = errors.New("Adapter ID not set")
-		return
-	}
-
-	targetURL := s.url + "/adapters/" + adapterID
-	resp, err := s.client.Get(targetURL)
+	resp, err := s.client.Get(s.url + s.path + "/" + adapterID)
 	if err != nil {
-		return
+		return adapter, errors.Wrap(err, "Can't get adapter\n")
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return
+		return adapter, errors.Wrap(err, "Can't convert adapter to byte slice\n")
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		var errorResponse models.ErrorResponse
-		err = json.Unmarshal(body, &errorResponse)
-		if err != nil {
-			return
-		}
-		err = fmt.Errorf("Server responded with error. Error message: %s. Error info: %s", errorResponse.Message, errorResponse.Info)
-		return
-	}
-
-	err = json.Unmarshal(body, &adapterResource)
+	err = handleHttpResponseCode(resp.StatusCode, body)
 	if err != nil {
-		return
+		return adapter, errors.Wrap(err, "Error in fetching adapters\n")
 	}
-	adapter = adapterResource.ToAdapter()
-	return
+
+	var aResource models.AdapterResource
+	err = json.Unmarshal(body, &aResource)
+	if err != nil {
+		return adapter, errors.Wrap(err, "Can't unmarshal adapter response\n")
+	}
+
+	return aResource.ToAdapter(), nil
 }
