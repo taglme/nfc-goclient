@@ -49,6 +49,7 @@ func TestRunsGetAll(t *testing.T) {
 				JobID:       "id",
 				JobName:     "name",
 				AdapterID:   "adid",
+				Status:      models.JobRunStatusStarted.String(),
 				AdapterName: "adname",
 				Results:     []models.StepResultResource{{Command: models.CommandGetDump.String()}},
 				CreatedAt:   "2006-01-02T15:04:05Z",
@@ -96,6 +97,7 @@ func TestRunsGetFiltered(t *testing.T) {
 			Items: []models.JobRunResource{{
 				JobID:       "id",
 				JobName:     "name",
+				Status:      models.JobRunStatusStarted.String(),
 				AdapterID:   "adid",
 				AdapterName: "adname",
 				Results:     []models.StepResultResource{{Command: models.CommandGetDump.String()}},
@@ -133,4 +135,42 @@ func TestRunsGetFiltered(t *testing.T) {
 	assert.Equal(t, 0, pagInfo.Offset)
 	assert.Equal(t, 0, pagInfo.Limit)
 	assert.Equal(t, 0, pagInfo.Length)
+}
+
+func TestRunService_Get(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Test request parameters
+		assert.Equal(t, "/adapters/id/runs/runid", req.URL.String())
+		resp, err := json.Marshal(models.JobRunResource{
+			JobID:       "id",
+			JobName:     "name",
+			AdapterID:   "adid",
+			AdapterName: "adname",
+			Status:      models.JobRunStatusStarted.String(),
+			Results:     []models.StepResultResource{{Command: models.CommandGetDump.String()}},
+			CreatedAt:   "2006-01-02T15:04:05Z",
+		})
+		if err != nil {
+			log.Fatal("Can't marshall test model\n", err)
+		}
+		rw.WriteHeader(200)
+		_, err = rw.Write(resp)
+		if err != nil {
+			log.Fatal("Can't return er\n", err)
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+
+	api := newRunService(server.Client(), server.URL)
+	body, err := api.Get("id", "runid")
+	if err != nil {
+		log.Fatal("Can't get run\n", err)
+	}
+
+	assert.Equal(t, "id", body.JobID)
+	assert.Equal(t, "name", body.JobName)
+	assert.Equal(t, "adname", body.AdapterName)
+	assert.Equal(t, "2006-01-02T15:04:05Z", body.CreatedAt.Format(time.RFC3339))
+	assert.Equal(t, models.CommandGetDump, body.Results[0].Command)
 }

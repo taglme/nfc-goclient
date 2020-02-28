@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/taglme/nfc-client/pkg/models"
@@ -114,11 +113,17 @@ func (s *wsService) errListener(e error) {
 
 func (s *wsService) read() {
 	defer func() {
-		s.conn.Close()
+		if s.conn != nil {
+			s.conn.Close()
+		}
 		s.conn = nil
 	}()
 
 	for {
+		if !s.IsConnected() {
+			return
+		}
+
 		var eventResource models.EventResource
 		_, message, err := s.conn.ReadMessage()
 		if err != nil {

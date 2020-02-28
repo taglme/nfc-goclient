@@ -50,7 +50,7 @@ func TestEventsGetAll(t *testing.T) {
 			Offset: 0,
 			Items: []models.EventResource{{
 				EventID:     "id",
-				Name:        "name",
+				Name:        models.EventNameAdapterDiscovery.String(),
 				AdapterID:   "adid",
 				AdapterName: "adname",
 				Data:        nil,
@@ -86,6 +86,32 @@ func TestEventsGetAll(t *testing.T) {
 	assert.Equal(t, 0, pagInfo.Length)
 }
 
+func TestEventsGetAll2(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Test request parameters
+		assert.Equal(t, req.URL.String(), "/events")
+		resp, err := json.Marshal(models.ErrorResponse{
+			Message: "err msg",
+			Info:    "err info",
+		})
+		if err != nil {
+			log.Fatal("Can't marshall test model\n", err)
+		}
+		rw.WriteHeader(500)
+		_, err = rw.Write(resp)
+		if err != nil {
+			log.Fatal("Can't return er\n", err)
+		}
+	}))
+
+	defer server.Close()
+
+	api := newEventService(server.Client(), server.URL)
+	_, _, err := api.GetAll()
+
+	assert.NotNil(t, err)
+}
+
 func TestEventsGetFiltered(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -97,7 +123,7 @@ func TestEventsGetFiltered(t *testing.T) {
 			Offset: 0,
 			Items: []models.EventResource{{
 				EventID:     "id",
-				Name:        "name",
+				Name:        models.EventNameAdapterDiscovery.String(),
 				AdapterID:   "adid",
 				AdapterName: "adname",
 				Data:        nil,
@@ -143,7 +169,7 @@ func TestEventsAdd(t *testing.T) {
 		assert.Equal(t, req.URL.String(), "/events")
 		resp, err := json.Marshal(models.EventResource{
 			EventID:     "eid",
-			Name:        "name",
+			Name:        models.EventNameAdapterDiscovery.String(),
 			AdapterID:   "id",
 			AdapterName: "aid",
 			Data:        nil,
@@ -163,7 +189,7 @@ func TestEventsAdd(t *testing.T) {
 
 	api := newEventService(server.Client(), server.URL)
 	body, err := api.Add(models.NewEvent{
-		Name:      "name",
+		Name:      models.EventNameAdapterDiscovery.String(),
 		AdapterID: "id",
 		Data:      nil,
 	})
@@ -172,10 +198,38 @@ func TestEventsAdd(t *testing.T) {
 		log.Fatal("Can't post event\n", err)
 	}
 
-	en, _ := models.StringToEventName("name")
-
-	assert.Equal(t, en, body.Name)
+	assert.Equal(t, models.EventNameAdapterDiscovery, body.Name)
 	assert.Equal(t, "id", body.AdapterID)
 	assert.Equal(t, "eid", body.EventID)
 	assert.Equal(t, "2006-01-02T15:04:05Z", body.CreatedAt.Format(time.RFC3339))
+}
+
+func TestEventsGet2(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Test request parameters
+		assert.Equal(t, req.URL.String(), "/events")
+		resp, err := json.Marshal(models.ErrorResponse{
+			Message: "err msg",
+			Info:    "err info",
+		})
+		if err != nil {
+			log.Fatal("Can't marshall test model\n", err)
+		}
+		rw.WriteHeader(500)
+		_, err = rw.Write(resp)
+		if err != nil {
+			log.Fatal("Can't return er\n", err)
+		}
+	}))
+
+	defer server.Close()
+
+	api := newEventService(server.Client(), server.URL)
+	_, err := api.Add(models.NewEvent{
+		Name:      "name",
+		AdapterID: "id",
+		Data:      nil,
+	})
+
+	assert.NotNil(t, err)
 }

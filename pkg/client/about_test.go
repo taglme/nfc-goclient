@@ -45,7 +45,6 @@ func TestAboutGet(t *testing.T) {
 }
 
 func TestAboutGetError(t *testing.T) {
-	// Start a local HTTP server
 	resp, err := json.Marshal(models.AppInfo{})
 	if err != nil {
 		log.Fatal("Can't marshall test model", err)
