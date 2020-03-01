@@ -20,8 +20,10 @@ type Client struct {
 	locale   string
 }
 
-func New(url string, locale string) *Client {
+func New(host string, locale string) *Client {
 	httpClient := &http.Client{}
+	urlHttp := "http://" + host
+	urlWs := "ws://" + host
 
 	//Set default locale in case of unknown locale
 	_, ok := models.StringToLocale(locale)
@@ -34,14 +36,14 @@ func New(url string, locale string) *Client {
 	httpClient.Transport = rt
 
 	return &Client{
-		Adapters: newAdapterService(httpClient, url),
-		About:    newAboutService(httpClient, url),
-		Events:   newEventService(httpClient, url),
-		Snippets: newSnippetService(httpClient, url),
-		Tags:     newTagService(httpClient, url),
-		Runs:     newRunService(httpClient, url),
-		Jobs:     newJobService(httpClient, url),
-		Ws:       newWsService(url),
+		Adapters: newAdapterService(httpClient, urlHttp),
+		About:    newAboutService(httpClient, urlHttp),
+		Events:   newEventService(httpClient, urlHttp),
+		Snippets: newSnippetService(httpClient, urlHttp),
+		Tags:     newTagService(httpClient, urlHttp),
+		Runs:     newRunService(httpClient, urlHttp),
+		Jobs:     newJobService(httpClient, urlHttp),
+		Ws:       newWsService(urlWs),
 		locale:   locale,
 	}
 }
