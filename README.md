@@ -1,4 +1,6 @@
 # NFC Client
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftaglme%2Fnfc-goclient.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftaglme%2Fnfc-goclient?ref=badge_shield)
+
 
 Open-Source Go library for quick and efficient work with NFC REST API.
 
@@ -56,3 +58,6 @@ errHandler := func(e error) {
 
 client.Ws.OnError(eHandler)
 ```
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftaglme%2Fnfc-goclient.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftaglme%2Fnfc-goclient?ref=badge_large)
