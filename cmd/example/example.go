@@ -12,43 +12,183 @@ type handler struct {
 	Exit chan bool
 }
 
-func main() {
-	client := client.New("127.0.0.1:3011", "en")
-	adapters, err := client.Adapters.GetAll()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	if len(adapters) == 0 {
-		fmt.Println("NFC adapters not found")
-		return
-	}
-
-	err = client.Ws.Connect()
-	if err != nil {
-		fmt.Printf("Could not connect to server: %s", err)
-		return
-	}
-
-	defer client.Ws.Disconnect()
-
-	done := make(chan bool)
-
-	handleEvents := &handler{Exit: done}
-
-	client.Ws.OnEvent(handleEvents.EventHandler)
-
-	_, err = client.Jobs.Add(adapters[0].AdapterID, writeURL("http://tagl.me"))
-	if err != nil {
-		fmt.Println("Could not add job to server")
-		return
-	}
-
-	<-done
+type Tasker struct {
+	client *client.Client
+	tasks  []models.NewJob
+	done   chan bool
 }
 
-func writeURL(url string) models.NewJob {
+func NewTasker(host string) *Tasker {
+	return &Tasker{
+		client: client.New(host, "en"),
+		tasks:  make([]models.NewJob, 0),
+		done:   make(chan bool),
+	}
+}
+func (t *Tasker) Add(nj models.NewJob) {
+	t.tasks = append(t.tasks, nj)
+}
+
+func (t *Tasker) Run(adapterNumber int) error {
+	err := t.client.Ws.Connect()
+	if err != nil {
+		return err
+	}
+
+	info, err := t.client.About.Get()
+	if err != nil {
+		return err
+	}
+
+	PrintInfo(info)
+	fmt.Printf("Success connection to host\n")
+	defer t.client.Ws.Disconnect()
+
+	t.client.Ws.OnEvent(t.EventHandler)
+
+	adapters, err := t.client.Adapters.GetAll()
+	if err != nil {
+		return err
+	}
+
+	PrintAdapters(adapters)
+
+	if len(adapters) == 0 {
+		return fmt.Errorf("Adapters not found")
+	}
+
+	for _, task := range t.tasks {
+		fmt.Printf(" ---TEST %s BEGIN---\n", task.JobName)
+		_, err := t.client.Jobs.Add(adapters[adapterNumber-1].AdapterID, task)
+		if err != nil {
+			return err
+		}
+
+		<-t.done
+		fmt.Printf(" ---TEST %s FINISHED---\n", task.JobName)
+
+	}
+	return nil
+}
+
+func main() {
+
+	tasker := NewTasker("127.0.0.1:3011")
+	tasker.Add(TaskWriteURL("https://tagl.me"))
+	tasker.Add(TaskRead())
+	tasker.Add(TaskGetDump())
+	tasker.Add(TaskTransmit([]byte{0x60}))
+	tasker.Add(TaskFormatDefault())
+	tasker.Add(TaskSetPassword([]byte{0x11, 0x11, 0x11, 0x11}))
+	tasker.Add(TaskRemovePassword([]byte{0x11, 0x11, 0x11, 0x11}))
+
+	err := tasker.Run(1)
+	if err != nil {
+		fmt.Printf("Tasks execution failed with error: %s", err)
+	}
+	return
+
+}
+
+func (t *Tasker) EventHandler(e models.Event) {
+	switch e.Name {
+	case models.EventNameJobSubmited:
+		fmt.Println("[Job submitted event]")
+		job, ok := e.GetJob()
+		if !ok {
+			fmt.Println("Job not found in event data")
+		} else {
+			fmt.Println(job)
+		}
+
+	case models.EventNameJobActivated:
+		fmt.Println("[Job activated event]")
+		job, ok := e.GetJob()
+		if !ok {
+			fmt.Println("Job not found in event data")
+		} else {
+			fmt.Println(job)
+		}
+
+	case models.EventNameTagDiscovery:
+		fmt.Println("[Tag discovered event]")
+		tag, ok := e.GetTag()
+		if !ok {
+			fmt.Println("Tag not found in event data")
+		} else {
+			fmt.Println(tag)
+		}
+
+	case models.EventNameTagRelease:
+		fmt.Println("[Tag release event]")
+		tag, ok := e.GetTag()
+		if !ok {
+			fmt.Println("Tag not found in event data")
+		} else {
+			fmt.Println(tag)
+		}
+
+	case models.EventNameAdapterDiscovery:
+		fmt.Println("[Adapter discovery event]")
+		adapter, ok := e.GetAdapter()
+		if !ok {
+			fmt.Println("Adapter not found in event data")
+		} else {
+			fmt.Println(adapter)
+		}
+
+	case models.EventNameAdapterRelease:
+		fmt.Println("[Adapter release event]")
+		adapter, ok := e.GetAdapter()
+		if !ok {
+			fmt.Println("Adapter not found in event data")
+		} else {
+			fmt.Println(adapter)
+		}
+
+	case models.EventNameRunStarted:
+		fmt.Println("[Run started event]")
+		run, ok := e.GetRun()
+		if !ok {
+			fmt.Println("Run not found in event data")
+		} else {
+			fmt.Println(run)
+		}
+		fmt.Println(e.Data)
+
+	case models.EventNameRunSuccess:
+		fmt.Println("[Run success event]")
+		run, ok := e.GetRun()
+		if !ok {
+			fmt.Println("Run not found in event data")
+		} else {
+			fmt.Println(run)
+		}
+		fmt.Println(e.Data)
+
+	case models.EventNameRunError:
+		fmt.Println("[Run error event]")
+		run, ok := e.GetRun()
+		if !ok {
+			fmt.Println("Run not found in event data")
+		} else {
+			fmt.Println(run)
+		}
+		fmt.Println(e.Data)
+
+	case models.EventNameJobFinished:
+		fmt.Println("[Job finished event]")
+		job, ok := e.GetJob()
+		if !ok {
+			fmt.Println("Job not found in event data")
+		} else {
+			fmt.Println(job)
+		}
+		t.done <- true
+	}
+}
+
+func TaskWriteURL(url string) models.NewJob {
 	ndefMessage := []ndefconv.NdefRecord{
 		ndefconv.NdefRecord{
 			Type: ndefconv.NdefRecordPayloadTypeUrl,
@@ -57,44 +197,148 @@ func writeURL(url string) models.NewJob {
 			},
 		},
 	}
-
-	operation := models.JobStep{
+	opWrite := models.JobStep{
 		Command: models.CommandWriteNdef,
 		Params: models.WriteNdefParams{
 			Message: ndefMessage,
 		},
 	}
-
-	operation.ToResource()
-
 	newJob := models.NewJob{
 		JobName:     "Write NDEF message",
 		Repeat:      1,
 		ExpireAfter: 60,
 		Steps: []models.JobStepResource{
-			operation.ToResource(),
+			opWrite.ToResource(),
 		},
 	}
 	return newJob
 }
-func (h *handler) EventHandler(e models.Event) {
 
-	switch e.Name {
-	case models.EventNameJobSubmited:
-		fmt.Println("New job submited to server")
-	case models.EventNameJobActivated:
-		fmt.Printf("Job activated. Waiting for tag...")
-	case models.EventNameTagDiscovery:
-		fmt.Println("tag discovered")
-	case models.EventNameRunStarted:
-		fmt.Printf("Run job operations. Hold the tag...")
-	case models.EventNameRunSuccess:
-		fmt.Println("success")
-	case models.EventNameRunError:
-		fmt.Println("error")
-	case models.EventNameJobFinished:
-		fmt.Println("Job finished")
-		h.Exit <- true
+func TaskRead() models.NewJob {
+	opGetTags := models.JobStep{
+		Command: models.CommandGetTags,
 	}
 
+	opRead := models.JobStep{
+		Command: models.CommandReadNdef,
+	}
+
+	newJob := models.NewJob{
+		JobName:     "Read tag",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opGetTags.ToResource(),
+			opRead.ToResource(),
+		},
+	}
+
+	return newJob
+}
+
+func TaskTransmit(txBytes []byte) models.NewJob {
+	opTransmit := models.JobStep{
+		Command: models.CommandTransmitTag,
+		Params: models.TransmitTagParams{
+			TxBytes: txBytes,
+		},
+	}
+	newJob := models.NewJob{
+		JobName:     "Transmit tag",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opTransmit.ToResource(),
+		},
+	}
+	return newJob
+}
+
+func TaskGetDump() models.NewJob {
+	opDump := models.JobStep{
+		Command: models.CommandGetDump,
+	}
+
+	newJob := models.NewJob{
+		JobName:     "Dump tag",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opDump.ToResource(),
+		},
+	}
+	return newJob
+}
+
+func TaskFormatDefault() models.NewJob {
+	opFormat := models.JobStep{
+		Command: models.CommandFormatDefault,
+	}
+
+	newJob := models.NewJob{
+		JobName:     "Format tag",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opFormat.ToResource(),
+		},
+	}
+	return newJob
+}
+
+func TaskSetPassword(password []byte) models.NewJob {
+	opSetPassword := models.JobStep{
+		Command: models.CommandSetPassword,
+		Params: models.SetPasswordParams{
+			Password: password,
+		},
+	}
+	newJob := models.NewJob{
+		JobName:     "Set password",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opSetPassword.ToResource(),
+		},
+	}
+	return newJob
+}
+
+func TaskRemovePassword(password []byte) models.NewJob {
+	opAuth := models.JobStep{
+		Command: models.CommandAuthPassword,
+		Params: models.AuthPasswordParams{
+			Password: password,
+		},
+	}
+
+	opRemovePassword := models.JobStep{
+		Command: models.CommandRemovePassword,
+	}
+
+	newJob := models.NewJob{
+		JobName:     "Remove password",
+		Repeat:      1,
+		ExpireAfter: 60,
+		Steps: []models.JobStepResource{
+			opAuth.ToResource(),
+			opRemovePassword.ToResource(),
+		},
+	}
+	return newJob
+}
+
+func PrintInfo(info models.AppInfo) {
+	fmt.Printf("Get server info: version - %s, platform - %s\n", info.Version, info.Platform)
+}
+func PrintAdapters(adapters []models.Adapter) {
+	if len(adapters) == 0 {
+		fmt.Println("Adapters not available")
+		return
+	}
+	fmt.Println("Current adapters:")
+	for i, adapter := range adapters {
+		fmt.Printf("[%d] %s\n", i, adapter.Name)
+	}
+	return
 }

@@ -1,9 +1,12 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
+
+	"github.com/pkg/errors"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
@@ -174,4 +177,57 @@ func (eventName EventName) String() string {
 		return names[0]
 	}
 	return names[eventName]
+}
+
+func (e Event) GetAdapter() (adapter AdapterResource, ok bool) {
+	jsonBytes, err := json.Marshal(e.Data)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(jsonBytes, &adapter)
+	if err != nil {
+		return
+	}
+	ok = true
+	return
+}
+func (e Event) GetTag() (tag TagResource, ok bool) {
+	jsonBytes, err := json.Marshal(e.Data)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(jsonBytes, &tag)
+	if err != nil {
+		return
+	}
+	ok = true
+	return
+}
+func (e Event) GetJob() (job JobResource, ok bool) {
+	jsonBytes, err := json.Marshal(e.Data)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(jsonBytes, &job)
+	if err != nil {
+		return
+	}
+	ok = true
+	return
+}
+func (e Event) GetRun() (run JobRunResource, ok bool) {
+	jsonBytes, err := json.Marshal(e.Data)
+	if err != nil {
+		fmt.Printf("Error marshal run resource %s\n", err)
+		return
+	}
+	err = json.Unmarshal(jsonBytes, &run)
+	if err != nil {
+		//Todo fix unmarshal error:
+		//Error unmarshal run resource json: cannot unmarshal object into Go struct field StepResultResource.results.params of type models.CommandParamsResourc
+		fmt.Printf("Error unmarshal run resource %s\n", err)
+		return
+	}
+	ok = true
+	return
 }
