@@ -5,12 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-
-	"github.com/emersion/go-vcard"
-	"github.com/hsanjuan/go-ndef"
-	"github.com/hsanjuan/go-ndef/types/generic"
-	"github.com/hsanjuan/go-ndef/types/wkt/text"
 )
 
 type Ndef struct {
@@ -250,7 +244,6 @@ func (ndefRecordResource NdefRecordResource) ToNdefRecord() (NdefRecord, error) 
 
 type NdefRecordPayload interface {
 	ToResource() NdefRecordPayloadResource
-	ToRecord() *ndef.Record
 	String() string
 }
 type NdefRecordPayloadResource interface {
@@ -341,13 +334,6 @@ func (ndefRecordPayload NdefRecordPayloadRaw) ToResource() NdefRecordPayloadReso
 	}
 	return resource
 }
-func (ndefRecordPayload NdefRecordPayloadRaw) ToRecord() *ndef.Record {
-
-	payload := generic.New(ndefRecordPayload.Payload)
-	record := ndef.NewRecord(byte(ndefRecordPayload.Tnf), ndefRecordPayload.Type, ndefRecordPayload.ID, payload)
-
-	return record
-}
 
 func (ndefRecordPayload NdefRecordPayloadRaw) String() string {
 	return fmt.Sprintf("%s, %s, % x", TnfToString(ndefRecordPayload.Tnf), ndefRecordPayload.Type, ndefRecordPayload.Payload)
@@ -380,11 +366,6 @@ func (ndefRecordPayload NdefRecordPayloadUrl) ToResource() NdefRecordPayloadReso
 	return NdefRecordPayloadUrlResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadUrl) ToRecord() *ndef.Record {
-	record := ndef.NewURIRecord(ndefRecordPayload.Url)
-	return record
-}
-
 func (ndefRecordPayload NdefRecordPayloadUrl) String() string {
 	return ndefRecordPayload.Url
 }
@@ -404,15 +385,6 @@ type NdefRecordPayloadTextResource struct {
 
 func (ndefRecordPayload NdefRecordPayloadText) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadTextResource(ndefRecordPayload)
-}
-
-func (ndefRecordPayload NdefRecordPayloadText) ToRecord() *ndef.Record {
-	//replace \n with {0x0D, 0x0A} according to spec
-	//todo: 1. add escape check for \\n 2. collapse spaces
-	crlf := string([]byte{0x0D, 0x0A})
-	text := strings.Replace(ndefRecordPayload.Text, "\n", crlf, -1)
-	record := ndef.NewTextRecord(text, LangToCode(ndefRecordPayload.Lang))
-	return record
 }
 
 func (ndefRecordPayload NdefRecordPayloadText) String() string {
@@ -529,11 +501,6 @@ func (ndefRecordPayload NdefRecordPayloadUri) ToResource() NdefRecordPayloadReso
 	return NdefRecordPayloadUriResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadUri) ToRecord() *ndef.Record {
-	record := ndef.NewURIRecord(ndefRecordPayload.Uri)
-	return record
-}
-
 func (ndefRecordPayload NdefRecordPayloadUri) String() string {
 	return ndefRecordPayload.Uri
 }
@@ -579,84 +546,6 @@ func (ndefRecordPayload NdefRecordPayloadVcard) ToResource() NdefRecordPayloadRe
 	return NdefRecordPayloadVcardResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadVcard) ToRecord() *ndef.Record {
-	var addresses []string
-
-	if ndefRecordPayload.AddressStreet != "" {
-		addresses = append(addresses, ndefRecordPayload.AddressStreet)
-	}
-	if ndefRecordPayload.AddressCity != "" {
-		addresses = append(addresses, ndefRecordPayload.AddressCity)
-	}
-	if ndefRecordPayload.AddressRegion != "" {
-		addresses = append(addresses, ndefRecordPayload.AddressRegion)
-	}
-	if ndefRecordPayload.AddressPostalCode != "" {
-		addresses = append(addresses, ndefRecordPayload.AddressPostalCode)
-	}
-	if ndefRecordPayload.AddressCountry != "" {
-		addresses = append(addresses, ndefRecordPayload.AddressCountry)
-	}
-
-	var vcardString = "BEGIN:VCARD\n" + "VERSION:3.0\n"
-
-	if ndefRecordPayload.FirstName != "" && ndefRecordPayload.LastName != "" {
-		vcardString += "N:" + ndefRecordPayload.LastName + ";" + ndefRecordPayload.FirstName + "\n"
-		vcardString += "FN:" + ndefRecordPayload.FirstName + " " + ndefRecordPayload.LastName + "\n"
-	} else if ndefRecordPayload.LastName == "" {
-		vcardString += "N:" + ndefRecordPayload.FirstName + "\n"
-		vcardString += "FN:" + ndefRecordPayload.FirstName + "\n"
-	} else if ndefRecordPayload.FirstName == "" {
-		vcardString += "N:" + ndefRecordPayload.LastName + "\n"
-		vcardString += "FN:" + ndefRecordPayload.LastName + "\n"
-	}
-
-	if ndefRecordPayload.Title != "" {
-		vcardString += "TITLE:" + ndefRecordPayload.Title + "\n"
-	}
-
-	if ndefRecordPayload.Organization != "" {
-		vcardString += "ORG:" + ndefRecordPayload.Organization + "\n"
-	}
-
-	if len(addresses) > 0 {
-		vcardString += "ADR:;;"
-
-		for i := range addresses {
-			if i == (len(addresses) - 1) {
-				vcardString += addresses[i] + ";\n"
-			} else {
-				vcardString += addresses[i] + ";"
-			}
-
-		}
-
-	}
-
-	if ndefRecordPayload.PhoneHome != "" {
-		vcardString += "TEL;TYPE=HOME,VOICE:" + ndefRecordPayload.PhoneHome + "\n"
-	}
-
-	if ndefRecordPayload.PhoneWork != "" {
-		vcardString += "TEL;TYPE=WORK,VOICE:" + ndefRecordPayload.PhoneWork + "\n"
-	}
-
-	if ndefRecordPayload.PhoneCell != "" {
-		vcardString += "TEL;TYPE=CELL:" + ndefRecordPayload.PhoneCell + "\n"
-	}
-
-	if ndefRecordPayload.Email != "" {
-		vcardString += "EMAIL:" + ndefRecordPayload.Email + "\n"
-	}
-	if ndefRecordPayload.Site != "" {
-		vcardString += "URL:" + ndefRecordPayload.Site + "\n"
-	}
-
-	vcardString += "END:VCARD"
-
-	record := ndef.NewMediaRecord("text/vcard", []byte(vcardString))
-	return record
-}
 func (ndefRecordPayload NdefRecordPayloadVcard) String() string {
 	s := ndefRecordPayload.FirstName
 	if ndefRecordPayload.LastName != "" && ndefRecordPayload.FirstName != "" {
@@ -696,22 +585,6 @@ func (ndefRecordPayload NdefRecordPayloadMime) ToResource() NdefRecordPayloadRes
 		Content: content,
 	}
 	return resource
-}
-
-func (ndefRecordPayload NdefRecordPayloadMime) ToRecord() *ndef.Record {
-	var contentByte []byte
-
-	if ndefRecordPayload.Format == MimeFormatASCII {
-		//replace \n with {0x0D, 0x0A} according to spec
-		//todo: 1. add escape check for \\n 2. collapse spaces
-		crlf := string([]byte{0x0D, 0x0A})
-		contentFormated := strings.Replace(ndefRecordPayload.ContentASCII, "\n", crlf, -1)
-		contentByte = []byte(contentFormated)
-	} else if ndefRecordPayload.Format == MimeFormatHex {
-		contentByte = ndefRecordPayload.ContentHEX
-	}
-	record := ndef.NewMediaRecord(ndefRecordPayload.Type, contentByte)
-	return record
 }
 
 func (ndefRecordPayload NdefRecordPayloadMime) String() string {
@@ -792,10 +665,6 @@ func (ndefRecordPayload NdefRecordPayloadPhone) ToResource() NdefRecordPayloadRe
 	return NdefRecordPayloadPhoneResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadPhone) ToRecord() *ndef.Record {
-	record := ndef.NewURIRecord("tel:" + ndefRecordPayload.PhoneNumber)
-	return record
-}
 func (ndefRecordPayload NdefRecordPayloadPhone) String() string {
 	return ndefRecordPayload.PhoneNumber
 }
@@ -817,11 +686,6 @@ func (ndefRecordPayload NdefRecordPayloadGeo) ToResource() NdefRecordPayloadReso
 	return NdefRecordPayloadGeoResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadGeo) ToRecord() *ndef.Record {
-	record := ndef.NewURIRecord("geo:" + ndefRecordPayload.Latitude + "," + ndefRecordPayload.Longitude)
-	return record
-}
-
 func (ndefRecordPayload NdefRecordPayloadGeo) String() string {
 	return fmt.Sprintf("%s, %s", ndefRecordPayload.Latitude, ndefRecordPayload.Longitude)
 }
@@ -840,10 +704,7 @@ type NdefRecordPayloadAarResource struct {
 func (ndefRecordPayload NdefRecordPayloadAar) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadAarResource(ndefRecordPayload)
 }
-func (ndefRecordPayload NdefRecordPayloadAar) ToRecord() *ndef.Record {
-	record := ndef.NewExternalRecord("android.com:pkg", []byte(ndefRecordPayload.PackageName))
-	return record
-}
+
 func (ndefRecordPayload NdefRecordPayloadAar) String() string {
 	return ndefRecordPayload.PackageName
 }
@@ -865,269 +726,12 @@ func (ndefRecordPayload NdefRecordPayloadPoster) ToResource() NdefRecordPayloadR
 	return NdefRecordPayloadPosterResource(ndefRecordPayload)
 }
 
-func (ndefRecordPayload NdefRecordPayloadPoster) ToRecord() *ndef.Record {
-
-	recordURI := ndef.NewURIRecord(ndefRecordPayload.Uri)
-	recordTitle := ndef.NewTextRecord(ndefRecordPayload.Title, "en")
-	posterPayload := ndef.NewMessageFromRecords(recordTitle, recordURI)
-	poster := ndef.NewSmartPosterMessage(posterPayload)
-	record := poster.Records[0]
-	return record
-}
-
 func (ndefRecordPayload NdefRecordPayloadPoster) String() string {
 	return fmt.Sprintf("%s, %s", ndefRecordPayload.Title, ndefRecordPayload.Uri)
 }
 
 func (ndefRecordPayloadResource NdefRecordPayloadPosterResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadPoster(ndefRecordPayloadResource), nil
-}
-
-func RecordToNdefRecord(record *ndef.Record) NdefRecord {
-	var ndefRecord NdefRecord
-	useRaw := false
-	recordTNF := record.TNF()
-	recordType := record.Type()
-	recordPayload, err := record.Payload()
-	if err != nil {
-		recordPayload = generic.New([]byte{})
-	}
-	recordPayloadStr := recordPayload.String()
-	recordPayloadBytes := recordPayload.Marshal()
-	recordID := record.ID()
-
-	switch recordTNF {
-	case ndef.NFCForumWellKnownType:
-		switch recordType {
-		case "U":
-			if strings.HasPrefix(recordPayloadStr, "http://") || strings.HasPrefix(recordPayloadStr, "https://") {
-				payloadUrl := NdefRecordPayloadUrl{
-					Url: recordPayloadStr,
-				}
-				ndefRecord = NdefRecord{
-					Type: NdefRecordPayloadTypeUrl,
-					Data: payloadUrl,
-				}
-			} else if strings.HasPrefix(recordPayloadStr, "tel:") {
-				payloadPhone := NdefRecordPayloadPhone{
-					PhoneNumber: recordPayloadStr[4:],
-				}
-				ndefRecord = NdefRecord{
-					Type: NdefRecordPayloadTypePhone,
-					Data: payloadPhone,
-				}
-			} else if strings.HasPrefix(recordPayloadStr, "geo:") {
-				latitude := ""
-				longitude := ""
-				recordPayloadStr = recordPayloadStr[4:]
-				i := strings.Index(recordPayloadStr, ",")
-
-				if i > -1 {
-					latitude = recordPayloadStr[:i]
-					longitude = recordPayloadStr[i+1:]
-				} else {
-					latitude = recordPayloadStr
-				}
-				payloadGeo := NdefRecordPayloadGeo{
-					Latitude:  latitude,
-					Longitude: longitude,
-				}
-				ndefRecord = NdefRecord{
-					Type: NdefRecordPayloadTypeGeo,
-					Data: payloadGeo,
-				}
-			} else {
-				payloadUri := NdefRecordPayloadUri{
-					Uri: recordPayloadStr,
-				}
-				ndefRecord = NdefRecord{
-					Type: NdefRecordPayloadTypeUri,
-					Data: payloadUri,
-				}
-			}
-
-		case "T":
-			langStr := ""
-			textStr := ""
-			textPayload, ok := recordPayload.(*text.Payload)
-			if ok {
-				langStr = CodeToLang(textPayload.Language)
-				//replace new line {0x0D, 0x0A} with \n
-				crlf := string([]byte{0x0D, 0x0A})
-				textStr = strings.Replace(textPayload.Text, crlf, "\n", -1)
-			}
-			payloadText := NdefRecordPayloadText{
-				Text: textStr,
-				Lang: langStr,
-			}
-			ndefRecord = NdefRecord{
-				Type: NdefRecordPayloadTypeText,
-				Data: payloadText,
-			}
-		case "Sp":
-			title := ""
-			uri := ""
-			smartPosterPayload, ok := recordPayload.(*ndef.SmartPosterPayload)
-			if ok {
-				posterMessage := smartPosterPayload.Message
-				for _, spRecord := range posterMessage.Records {
-					if spRecord.TNF() == ndef.NFCForumWellKnownType {
-						spRecordPayload, err := spRecord.Payload()
-						if err == nil {
-							if spRecord.Type() == "U" {
-								uri = spRecordPayload.String()
-							} else if spRecord.Type() == "T" {
-								textPayload, ok := spRecordPayload.(*text.Payload)
-								if ok {
-									title = textPayload.Text
-								}
-
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-			payloadPoster := NdefRecordPayloadPoster{
-				Title: title,
-				Uri:   uri,
-			}
-			ndefRecord = NdefRecord{
-				Type: NdefRecordPayloadTypePoster,
-				Data: payloadPoster,
-			}
-		default:
-			useRaw = true
-
-		}
-
-	case ndef.MediaType:
-		if recordType == "text/vcard" {
-			addressCity := ""
-			addressCountry := ""
-			addressPostalCode := ""
-			addressRegion := ""
-			addressStreet := ""
-			email := ""
-			firstName := ""
-			lastName := ""
-			organization := ""
-			phoneCell := ""
-			phoneHome := ""
-			phoneWork := ""
-			title := ""
-			site := ""
-
-			newReader := strings.NewReader(string(recordPayloadBytes))
-			dec := vcard.NewDecoder(newReader)
-			card, err := dec.Decode()
-			if err == nil {
-				name := card.Name()
-				if name != nil {
-					firstName = name.GivenName
-					lastName = name.FamilyName
-				}
-				address := card.Address()
-				if address != nil {
-					addressCity = address.Locality
-					addressCountry = address.Country
-					addressPostalCode = address.PostalCode
-					addressRegion = address.Region
-					addressStreet = address.StreetAddress
-
-				}
-				organization = card.Value(vcard.FieldOrganization)
-				title = card.Value(vcard.FieldTitle)
-				phoneFields, ok := card[vcard.FieldTelephone]
-				if ok {
-					for _, phoneField := range phoneFields {
-						params := phoneField.Params
-						if params.HasType(vcard.TypeHome) && params.HasType(vcard.TypeVoice) {
-							phoneHome = phoneField.Value
-						} else if params.HasType(vcard.TypeWork) && params.HasType(vcard.TypeVoice) {
-							phoneWork = phoneField.Value
-						} else if params.HasType(vcard.TypeCell) {
-							phoneCell = phoneField.Value
-						}
-
-					}
-				}
-				email = card.Value(vcard.FieldEmail)
-				site = card.Value(vcard.FieldURL)
-			}
-			payloadVcard := NdefRecordPayloadVcard{
-				AddressCity:       addressCity,
-				AddressCountry:    addressCountry,
-				AddressPostalCode: addressPostalCode,
-				AddressRegion:     addressRegion,
-				AddressStreet:     addressStreet,
-				Email:             email,
-				FirstName:         firstName,
-				LastName:          lastName,
-				Organization:      organization,
-				PhoneCell:         phoneCell,
-				PhoneHome:         phoneHome,
-				PhoneWork:         phoneWork,
-				Title:             title,
-				Site:              site,
-			}
-			ndefRecord = NdefRecord{
-				Type: NdefRecordPayloadTypeVcard,
-				Data: payloadVcard,
-			}
-
-		} else {
-			payloadMime := NdefRecordPayloadMime{
-				Type:       recordType,
-				Format:     MimeFormatHex,
-				ContentHEX: recordPayloadBytes,
-			}
-
-			ndefRecord = NdefRecord{
-				Type: NdefRecordPayloadTypeMime,
-				Data: payloadMime,
-			}
-
-		}
-
-	case ndef.NFCForumExternalType:
-		if recordType == "android.com:pkg" {
-			packageName := string(recordPayloadBytes)
-			payloadAar := NdefRecordPayloadAar{
-				PackageName: packageName,
-			}
-			ndefRecord = NdefRecord{
-				Type: NdefRecordPayloadTypeAar,
-				Data: payloadAar,
-			}
-
-		} else {
-			useRaw = true
-		}
-
-	default:
-		useRaw = true
-
-	}
-
-	if useRaw {
-		payloadRaw := NdefRecordPayloadRaw{
-			Tnf:     int(recordTNF),
-			Type:    recordType,
-			ID:      recordID,
-			Payload: recordPayload.Marshal(),
-		}
-
-		ndefRecord = NdefRecord{
-			Type: NdefRecordPayloadTypeRaw,
-			Data: payloadRaw,
-		}
-	}
-	return ndefRecord
-
 }
 
 func TnfToString(tnf int) string {

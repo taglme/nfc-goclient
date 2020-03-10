@@ -3,8 +3,8 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
+
 	"github.com/pkg/errors"
-	"log"
 )
 
 type Tag struct {
@@ -78,7 +78,7 @@ func (t Tag) ToShortResource() TagShortResource {
 func (t TagShortResource) ToTag() (tag Tag, err error) {
 	tType, ok := StringToTagType(t.Type)
 	if !ok {
-		log.Printf("Can't convert type resource category\n")
+		return tag, errors.New("Can't convert type resource category\n")
 	}
 
 	uuid, err := base64.StdEncoding.DecodeString(t.Uid)

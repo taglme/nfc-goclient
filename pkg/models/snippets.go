@@ -1,6 +1,6 @@
 package models
 
-import "log"
+import "github.com/pkg/errors"
 
 type Snippet struct {
 	Name        string
@@ -29,10 +29,10 @@ const (
 	AdapterSnippet
 )
 
-func (s SnippetResource) ToSnippet() Snippet {
+func (s SnippetResource) ToSnippet() (Snippet, error) {
 	c, ok := StringToSnippetCategory(s.Category)
 	if !ok {
-		log.Printf("Can't convert snippet resource category\n")
+		return Snippet{}, errors.New("Can't convert snippet resource category\n")
 	}
 
 	return Snippet{
@@ -42,7 +42,7 @@ func (s SnippetResource) ToSnippet() Snippet {
 		UsageName:   s.UsageName,
 		Description: s.Description,
 		Code:        s.Code,
-	}
+	}, nil
 }
 
 func StringToSnippetCategory(s string) (SnippetCategory, bool) {

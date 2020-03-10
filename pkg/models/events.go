@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -46,7 +45,7 @@ type EventListResource struct {
 func (e EventResource) ToEvent() (event Event, err error) {
 	eName, ok := StringToEventName(e.Name)
 	if !ok {
-		log.Printf("Can't convert event resource name to event name\n")
+		return Event{}, errors.New("Can't convert event resource name to event name\n")
 	}
 
 	t, err := time.Parse(time.RFC3339, e.CreatedAt)

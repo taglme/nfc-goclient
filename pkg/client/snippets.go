@@ -68,7 +68,10 @@ func (s *snippetService) GetFiltered(filter SnippetFilter) (snippets []models.Sn
 
 	snippets = make([]models.Snippet, len(sListResource))
 	for i, s := range sListResource {
-		snippets[i] = s.ToSnippet()
+		snippets[i], err = s.ToSnippet()
+		if err != nil {
+			return snippets, errors.Wrap(err, "Can't convert snippet resource\n")
+		}
 	}
 
 	return snippets, nil

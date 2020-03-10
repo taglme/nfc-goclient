@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -47,7 +46,7 @@ func (j Job) ToJobRun() JobRun {
 func (j JobRunResource) ToJobRun() (job JobRun, err error) {
 	s, ok := StringToJobRunStatus(j.Status)
 	if !ok {
-		log.Printf("Can't convert job run resource status\n")
+		return job, errors.New("Can't convert job run resource status\n")
 	}
 
 	t, err := time.Parse(time.RFC3339, j.CreatedAt)
