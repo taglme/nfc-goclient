@@ -3,14 +3,16 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//EventFilter defines filter for event list
 type EventFilter struct {
 	Name    *models.EventName
 	SortBy  *string
@@ -19,6 +21,7 @@ type EventFilter struct {
 	Limit   *int
 }
 
+//EventService event service interface
 type EventService interface {
 	GetAll() ([]models.Event, models.PageInfo, error)
 	GetFiltered(adapterID *string, filter EventFilter) ([]models.Event, models.PageInfo, error)

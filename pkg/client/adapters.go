@@ -2,16 +2,20 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
 
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//AdapterFilter defines filter for adpater list
 type AdapterFilter struct {
 	AdapterType models.AdapterType
 }
+
+//AdapterService adapter service interface
 type AdapterService interface {
 	GetAll() ([]models.Adapter, error)
 	GetFiltered(adapterType *models.AdapterType) ([]models.Adapter, error)
@@ -32,12 +36,12 @@ func newAdapterService(client *http.Client, url string) AdapterService {
 	}
 }
 
-// Adapters list endpoint returns information about all adapters. The response includes array of Adapters
+//GetAll - adapters list endpoint returns information about all adapters. The response includes array of Adapters
 func (s *adapterService) GetAll() (adapters []models.Adapter, err error) {
 	return s.GetFiltered(nil)
 }
 
-// Adapters list endpoint returns information about all adapters. The response includes array of Adapters
+//GetFiltered - adapters list endpoint returns information about all adapters. The response includes array of Adapters
 // adapterType – Adapters' type filter.
 func (s *adapterService) GetFiltered(adapterType *models.AdapterType) (adapters []models.Adapter, err error) {
 	queryParams := ""

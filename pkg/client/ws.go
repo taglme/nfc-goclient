@@ -2,14 +2,19 @@ package client
 
 import (
 	"encoding/json"
+
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//EventHandler event handler func specific type
 type EventHandler func(e models.Event)
+
+//ErrorHandler error handler func specific type
 type ErrorHandler func(e error)
 
+//WsService websocket service interface
 type WsService interface {
 	Connect() error
 	Disconnect() error

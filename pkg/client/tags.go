@@ -2,12 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//TagService tag service interface
 type TagService interface {
 	GetAll(adapterID string, tagType *models.TagType) ([]models.Tag, error)
 	Get(adapterID string, tagID string) (models.Tag, error)

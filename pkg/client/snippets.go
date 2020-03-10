@@ -10,11 +10,13 @@ import (
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//SnippetFilter defines filter for snippet list
 type SnippetFilter struct {
 	Category *models.SnippetCategory
 	UsageID  *string
 }
 
+//SnippetService snippet service interface
 type SnippetService interface {
 	GetAll() ([]models.Snippet, error)
 	GetFiltered(filter SnippetFilter) ([]models.Snippet, error)

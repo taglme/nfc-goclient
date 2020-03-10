@@ -8,6 +8,7 @@ import (
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//Client represents main client structure. It is used to communicate with server API
 type Client struct {
 	Adapters AdapterService
 	About    AboutService
@@ -20,6 +21,7 @@ type Client struct {
 	locale   string
 }
 
+//New create new client to communicate with server API
 func New(host string, locale string) *Client {
 	httpClient := &http.Client{}
 	urlHttp := "http://" + host

@@ -2,12 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//AboutService about service interface
 type AboutService interface {
 	Get() (models.AppInfo, error)
 }

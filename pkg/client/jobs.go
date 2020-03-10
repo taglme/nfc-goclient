@@ -3,14 +3,16 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//JobFilter defines filter for job list
 type JobFilter struct {
 	Status  *models.JobStatus
 	SortBy  *string
@@ -19,6 +21,7 @@ type JobFilter struct {
 	Offset  *int
 }
 
+//JobService job service interface
 type JobService interface {
 	GetAll(adapterID string) ([]models.Job, models.PageInfo, error)
 	GetFiltered(adapterID string, filter JobFilter) ([]models.Job, models.PageInfo, error)

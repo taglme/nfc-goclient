@@ -2,14 +2,16 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
+//RunFilter defines filter for run list
 type RunFilter struct {
 	JobID   *string
 	Status  *models.JobRunStatus
@@ -19,6 +21,7 @@ type RunFilter struct {
 	Offset  *int
 }
 
+//RunService run service interface
 type RunService interface {
 	GetAll(adapterID string) ([]models.JobRun, models.PageInfo, error)
 	GetFiltered(adapterID string, filter RunFilter) ([]models.JobRun, models.PageInfo, error)
