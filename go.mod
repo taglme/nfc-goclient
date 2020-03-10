@@ -1,4 +1,4 @@
-module github.com/taglme/nfc-client
+module github.com/taglme/nfc-goclient
 
 go 1.13
 

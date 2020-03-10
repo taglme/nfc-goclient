@@ -4,12 +4,12 @@ Open-Source Go library for quick and efficient work with NFC REST API.
 
 ### Installation
 
-``` go get github.com/taglme/nfc-client ```
+``` go get github.com/taglme/nfc-goclient ```
 
 ### Usage
 
 ```Go
-import "github.com/taglme/nfc-client/pkg"
+import "github.com/taglme/nfc-goclient/pkg"
 
 url := "http://127.0.0.1:3011" // url of the hosted API
 locale := "en" // preferred locale to be set on the BE side

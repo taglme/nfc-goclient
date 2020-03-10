@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-client/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestBuildSnippetsQueryParams(t *testing.T) {

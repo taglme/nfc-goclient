@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/taglme/nfc-client/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 type Client struct {

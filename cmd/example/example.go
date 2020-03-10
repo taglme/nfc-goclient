@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/taglme/nfc-client/pkg/client"
-	"github.com/taglme/nfc-client/pkg/models"
-	"github.com/taglme/nfc-client/pkg/ndefconv"
+	"github.com/taglme/nfc-goclient/pkg/client"
+	"github.com/taglme/nfc-goclient/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/ndefconv"
 )
 
 type handler struct {

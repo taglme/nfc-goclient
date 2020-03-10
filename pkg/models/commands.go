@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 
-	"github.com/taglme/nfc-client/pkg/ndefconv"
+	"github.com/taglme/nfc-goclient/pkg/ndefconv"
 )
 
 type CommandParams interface {

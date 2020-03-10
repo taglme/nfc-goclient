@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
-	"github.com/taglme/nfc-client/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/models"
 	"io/ioutil"
 	"net/http"
 )

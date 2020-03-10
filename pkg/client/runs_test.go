@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-client/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"

@@ -7,10 +7,13 @@ import (
 	"fmt"
 )
 
+// Ndef defines NDEF message with additional ReadOnly flag
 type Ndef struct {
 	ReadOnly bool
 	Message  []NdefRecord
 }
+
+// NdefResource defines json structure of Ndef resource
 type NdefResource struct {
 	ReadOnly bool                 `json:"read_only"`
 	Message  []NdefRecordResource `json:"message"`
@@ -29,6 +32,7 @@ func (ndef *Ndef) String() string {
 
 }
 
+//ToResource - conversion Ndef structure to json resource
 func (ndef Ndef) ToResource() NdefResource {
 	var ndefRecordResources []NdefRecordResource
 	for _, ndefRecord := range ndef.Message {
@@ -41,6 +45,8 @@ func (ndef Ndef) ToResource() NdefResource {
 
 	return resource
 }
+
+//ToNdefRecord - conversion json resource to Ndef structure
 func (ndefResource NdefResource) ToNdefRecord() (Ndef, error) {
 	var ndefRecords []NdefRecord
 	for _, ndefRecordResource := range ndefResource.Message {
@@ -57,6 +63,7 @@ func (ndefResource NdefResource) ToNdefRecord() (Ndef, error) {
 	return resource, nil
 }
 
+//NdefRecord defines NDEF record representation
 type NdefRecord struct {
 	Type NdefRecordPayloadType
 	Data NdefRecordPayload
@@ -66,12 +73,14 @@ func (ndefRecord *NdefRecord) String() string {
 	return ndefRecord.Data.String()
 }
 
+//NdefRecordResource json structure of NdefRecord resource
 type NdefRecordResource struct {
 	Type string                    `json:"type"`
 	Data NdefRecordPayloadResource `json:"data"`
 }
 
-func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
+//UnmarshalJSON - unmarshal NdefRecordResource structure
+func (ndefRecordResource *NdefRecordResource) UnmarshalJSON(data []byte) error {
 
 	var obj map[string]interface{}
 	err := json.Unmarshal(data, &obj)
@@ -88,7 +97,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 	if !isValid {
 		return errors.New("Ndef record have not valid type")
 	}
-	ndefRecord.Type = t
+	ndefRecordResource.Type = t
 
 	_, ok = obj["data"]
 
@@ -112,7 +121,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.Tnf > 0 && r.Payload == "" {
 			return errors.New("Payload field of Raw type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeUrl:
 		r := NdefRecordPayloadUrlResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -122,7 +131,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.Url == "" {
 			return errors.New("Url field of Url type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeText:
 		r := NdefRecordPayloadTextResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -132,7 +141,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.Text == "" {
 			return errors.New("Text field of Text type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeUri:
 		r := NdefRecordPayloadUriResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -142,7 +151,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.Uri == "" {
 			return errors.New("Uri field of Uri type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeVcard:
 		r := NdefRecordPayloadVcardResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -152,7 +161,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.FirstName == "" {
 			return errors.New("First name field of Vcard type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeMime:
 		r := NdefRecordPayloadMimeResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -167,7 +176,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 			return errors.New("Format field of Mime type record has invalid value")
 		}
 
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypePhone:
 		r := NdefRecordPayloadPhoneResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -178,7 +187,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 			return errors.New("Phone number field of Phone type record should be not empty")
 		}
 
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeGeo:
 		r := NdefRecordPayloadGeoResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -192,7 +201,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 			return errors.New("Longitude field of Geo type record should be not empty")
 		}
 
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypeAar:
 		r := NdefRecordPayloadAarResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -202,7 +211,7 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.PackageName == "" {
 			return errors.New("Package name field of Android application type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	case NdefRecordPayloadTypePoster:
 		r := NdefRecordPayloadPosterResource{}
 		err := json.Unmarshal(dataBytes, &r)
@@ -215,11 +224,12 @@ func (ndefRecord *NdefRecordResource) UnmarshalJSON(data []byte) error {
 		if r.Uri == "" {
 			return errors.New("Uri name field of Smartposter type record should be not empty")
 		}
-		ndefRecord.Data = r
+		ndefRecordResource.Data = r
 	}
 	return nil
 }
 
+//ToResource - NdefRecord conversion to corresponding json resource
 func (ndefRecord NdefRecord) ToResource() NdefRecordResource {
 	resource := NdefRecordResource{
 		Type: ndefRecord.Type.String(),
@@ -228,6 +238,8 @@ func (ndefRecord NdefRecord) ToResource() NdefRecordResource {
 
 	return resource
 }
+
+//ToNdefRecord - NdefRecordResource conversion to NdefRecord structure
 func (ndefRecordResource NdefRecordResource) ToNdefRecord() (NdefRecord, error) {
 	ndefRecordPayloadType, _ := StringToNdefRecordPayloadType(ndefRecordResource.Type)
 	data, err := ndefRecordResource.Data.ToPayload()
@@ -242,29 +254,44 @@ func (ndefRecordResource NdefRecordResource) ToNdefRecord() (NdefRecord, error) 
 	return resource, nil
 }
 
+//NdefRecordPayload represents NDEF record payload interface
 type NdefRecordPayload interface {
 	ToResource() NdefRecordPayloadResource
 	String() string
 }
+
+//NdefRecordPayloadResource defines NDEF record payload resource interface
 type NdefRecordPayloadResource interface {
 	ToPayload() (NdefRecordPayload, error)
 }
 
+//NdefRecordPayloadType defines types of NDEF record payloads
 type NdefRecordPayloadType int
 
 const (
+	//NdefRecordPayloadTypeRaw - raw type of NDEF record payload
 	NdefRecordPayloadTypeRaw NdefRecordPayloadType = iota + 1
+	//NdefRecordPayloadTypeUrl - URL type of NDEF record payload
 	NdefRecordPayloadTypeUrl
+	//NdefRecordPayloadTypeText - text type of NDEF record payload
 	NdefRecordPayloadTypeText
+	//NdefRecordPayloadTypeUri - URI type of NDEF record payload
 	NdefRecordPayloadTypeUri
+	//NdefRecordPayloadTypeVcard - VCARD type of NDEF record payload
 	NdefRecordPayloadTypeVcard
+	//NdefRecordPayloadTypeMime - mime type of NDEF record payload
 	NdefRecordPayloadTypeMime
+	//NdefRecordPayloadTypePhone - phone type of NDEF record payload
 	NdefRecordPayloadTypePhone
+	//NdefRecordPayloadTypeGeo - geo type of NDEF record payload
 	NdefRecordPayloadTypeGeo
+	//NdefRecordPayloadTypeAar - android package type of NDEF record payload
 	NdefRecordPayloadTypeAar
+	//NdefRecordPayloadTypePoster - smart poster type of NDEF record payload
 	NdefRecordPayloadTypePoster
 )
 
+//StringToNdefRecordPayloadType - string conversion to specific NdefRecordPayloadType type
 func StringToNdefRecordPayloadType(s string) (NdefRecordPayloadType, bool) {
 	switch s {
 	case NdefRecordPayloadTypeRaw.String():
@@ -311,12 +338,15 @@ func (ndefRecordPayloadType NdefRecordPayloadType) String() string {
 	return names[ndefRecordPayloadType]
 }
 
+//NdefRecordPayloadRaw defines raw NDEF record payload structure
 type NdefRecordPayloadRaw struct {
 	Tnf     int
 	Type    string
 	ID      string
 	Payload []byte
 }
+
+//NdefRecordPayloadRawResource defines json resource structure of raw NDEF record payload structure
 type NdefRecordPayloadRawResource struct {
 	Tnf     int    `json:"tnf"`
 	Type    string `json:"type"`
@@ -324,6 +354,7 @@ type NdefRecordPayloadRawResource struct {
 	Payload string `json:"payload"`
 }
 
+//ToResource conversion raw NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadRaw) ToResource() NdefRecordPayloadResource {
 	encodedString := base64.StdEncoding.EncodeToString(ndefRecordPayload.Payload)
 	resource := NdefRecordPayloadRawResource{
@@ -335,10 +366,12 @@ func (ndefRecordPayload NdefRecordPayloadRaw) ToResource() NdefRecordPayloadReso
 	return resource
 }
 
+//String pretty print of raw NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadRaw) String() string {
 	return fmt.Sprintf("%s, %s, % x", TnfToString(ndefRecordPayload.Tnf), ndefRecordPayload.Type, ndefRecordPayload.Payload)
 }
 
+//ToPayload conversion raw NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadRawResource) ToPayload() (NdefRecordPayload, error) {
 	decodedBytes, err := base64.StdEncoding.DecodeString(ndefRecordPayloadResource.Payload)
 	if err != nil {
@@ -355,47 +388,60 @@ func (ndefRecordPayloadResource NdefRecordPayloadRawResource) ToPayload() (NdefR
 	return ndefRecordPayload, nil
 }
 
+//NdefRecordPayloadUrl defines url NDEF record payload structure
 type NdefRecordPayloadUrl struct {
 	Url string
 }
+
+//NdefRecordPayloadUrlResource defines json resource structure of url NDEF record payload structure
 type NdefRecordPayloadUrlResource struct {
 	Url string `json:"url"`
 }
 
+//ToResource conversion url NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadUrl) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadUrlResource(ndefRecordPayload)
 }
 
+//String pretty print of url NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadUrl) String() string {
 	return ndefRecordPayload.Url
 }
 
+//ToPayload conversion url NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadUrlResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadUrl(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadText defines text NDEF record payload structure
 type NdefRecordPayloadText struct {
 	Text string
 	Lang string
 }
+
+//NdefRecordPayloadTextResource defines json resource structure of text NDEF record payload structure
 type NdefRecordPayloadTextResource struct {
 	Text string `json:"text"`
 	Lang string `json:"lang"`
 }
 
+//ToResource conversion text NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadText) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadTextResource(ndefRecordPayload)
 }
 
+//String pretty print of text NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadText) String() string {
 
 	return ndefRecordPayload.Text
 }
 
+//ToPayload conversion text NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadTextResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadText(ndefRecordPayloadResource), nil
 }
 
+//LangToCode - language conversion to code
 func LangToCode(lang string) string {
 	var code string
 	switch lang {
@@ -443,6 +489,7 @@ func LangToCode(lang string) string {
 	return code
 }
 
+//CodeToLang - code conversion to language
 func CodeToLang(code string) string {
 	var lang string
 	switch code {
@@ -490,25 +537,32 @@ func CodeToLang(code string) string {
 	return lang
 }
 
+//NdefRecordPayloadUri defines uri NDEF record payload structure
 type NdefRecordPayloadUri struct {
 	Uri string
 }
+
+//NdefRecordPayloadUriResource defines json resource structure of uri NDEF record payload structure
 type NdefRecordPayloadUriResource struct {
 	Uri string `json:"uri"`
 }
 
+//ToResource conversion uri NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadUri) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadUriResource(ndefRecordPayload)
 }
 
+//String pretty print of uri NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadUri) String() string {
 	return ndefRecordPayload.Uri
 }
 
+//ToPayload conversion uri NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadUriResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadUri(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadVcard defines vcard NDEF record payload structure
 type NdefRecordPayloadVcard struct {
 	AddressCity       string
 	AddressCountry    string
@@ -525,6 +579,8 @@ type NdefRecordPayloadVcard struct {
 	Title             string
 	Site              string
 }
+
+//NdefRecordPayloadVcardResource defines json resource structure of vcard NDEF record payload structure
 type NdefRecordPayloadVcardResource struct {
 	AddressCity       string `json:"address_city"`
 	AddressCountry    string `json:"address_country"`
@@ -542,10 +598,12 @@ type NdefRecordPayloadVcardResource struct {
 	Site              string `json:"site"`
 }
 
+//ToResource conversion vcard NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadVcard) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadVcardResource(ndefRecordPayload)
 }
 
+//String pretty print of vcard NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadVcard) String() string {
 	s := ndefRecordPayload.FirstName
 	if ndefRecordPayload.LastName != "" && ndefRecordPayload.FirstName != "" {
@@ -556,22 +614,27 @@ func (ndefRecordPayload NdefRecordPayloadVcard) String() string {
 	return s
 }
 
+//ToPayload conversion vcard NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadVcardResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadVcard(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadMime defines mime NDEF record payload structure
 type NdefRecordPayloadMime struct {
 	Type         string
 	Format       MimeFormat
 	ContentASCII string
 	ContentHEX   []byte
 }
+
+//NdefRecordPayloadMimeResource defines json resource structure of mime NDEF record payload structure
 type NdefRecordPayloadMimeResource struct {
 	Type    string `json:"type"`
 	Format  string `json:"format"`
 	Content string `json:"content"`
 }
 
+//ToResource conversion mime NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadMime) ToResource() NdefRecordPayloadResource {
 	var content string
 	if ndefRecordPayload.Format == MimeFormatASCII {
@@ -587,6 +650,7 @@ func (ndefRecordPayload NdefRecordPayloadMime) ToResource() NdefRecordPayloadRes
 	return resource
 }
 
+//String pretty print of mime NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadMime) String() string {
 	var s string
 	if ndefRecordPayload.Format == MimeFormatHex {
@@ -597,6 +661,8 @@ func (ndefRecordPayload NdefRecordPayloadMime) String() string {
 	}
 	return s
 }
+
+//ToPayload conversion mime NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadMimeResource) ToPayload() (NdefRecordPayload, error) {
 	var contentASCII string
 	var contentHEX []byte
@@ -624,13 +690,17 @@ func (ndefRecordPayloadResource NdefRecordPayloadMimeResource) ToPayload() (Ndef
 	return ndefRecordPayload, nil
 }
 
+//MimeFormat - specific type represented mime data format
 type MimeFormat int
 
 const (
+	//MimeFormatASCII - ascii format of mime data
 	MimeFormatASCII MimeFormat = iota + 1
+	//MimeFormatHex - hex format of mime data
 	MimeFormatHex
 )
 
+//StringToMimeFormat string conversion to specific mime format type
 func StringToMimeFormat(s string) (MimeFormat, bool) {
 	switch s {
 	case MimeFormatASCII.String():
@@ -654,86 +724,111 @@ func (mimeFormat MimeFormat) String() string {
 	return names[mimeFormat]
 }
 
+//NdefRecordPayloadPhone defines phone NDEF record payload structure
 type NdefRecordPayloadPhone struct {
 	PhoneNumber string
 }
+
+//NdefRecordPayloadPhoneResource defines json resource structure of phone NDEF record payload structure
 type NdefRecordPayloadPhoneResource struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+//ToResource conversion phone NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadPhone) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadPhoneResource(ndefRecordPayload)
 }
 
+//String pretty print of phone NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadPhone) String() string {
 	return ndefRecordPayload.PhoneNumber
 }
 
+//ToPayload conversion phone NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadPhoneResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadPhone(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadGeo defines geo NDEF record payload structure
 type NdefRecordPayloadGeo struct {
 	Latitude  string
 	Longitude string
 }
+
+//NdefRecordPayloadGeoResource defines json resource structure of geo NDEF record payload structure
 type NdefRecordPayloadGeoResource struct {
 	Latitude  string `json:"latitude"`
 	Longitude string `json:"longitude"`
 }
 
+//ToResource conversion geo NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadGeo) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadGeoResource(ndefRecordPayload)
 }
 
+//String pretty print of geo NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadGeo) String() string {
 	return fmt.Sprintf("%s, %s", ndefRecordPayload.Latitude, ndefRecordPayload.Longitude)
 }
 
+//ToPayload conversion geo NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadGeoResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadGeo(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadAar defines Android package NDEF record payload structure
 type NdefRecordPayloadAar struct {
 	PackageName string
 }
+
+//NdefRecordPayloadAarResource defines json resource structure of Android package NDEF record payload structure
 type NdefRecordPayloadAarResource struct {
 	PackageName string `json:"package_name"`
 }
 
+//ToResource conversion Android package NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadAar) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadAarResource(ndefRecordPayload)
 }
 
+//String pretty print of Android package NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadAar) String() string {
 	return ndefRecordPayload.PackageName
 }
 
+//ToPayload conversion Android package NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadAarResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadAar(ndefRecordPayloadResource), nil
 }
 
+//NdefRecordPayloadPoster defines smart poster NDEF record payload structure
 type NdefRecordPayloadPoster struct {
 	Title string
 	Uri   string
 }
+
+//NdefRecordPayloadPosterResource defines json resource structure of smart poster NDEF record payload structure
 type NdefRecordPayloadPosterResource struct {
 	Title string `json:"title"`
 	Uri   string `json:"uri"`
 }
 
+//ToResource conversion smart poster NDEF record payload structure to json resource
 func (ndefRecordPayload NdefRecordPayloadPoster) ToResource() NdefRecordPayloadResource {
 	return NdefRecordPayloadPosterResource(ndefRecordPayload)
 }
 
+//String pretty print of smart poster NDEF record payload
 func (ndefRecordPayload NdefRecordPayloadPoster) String() string {
 	return fmt.Sprintf("%s, %s", ndefRecordPayload.Title, ndefRecordPayload.Uri)
 }
 
+//ToPayload conversion smart poster NDEF record payload resource to corresponding structure
 func (ndefRecordPayloadResource NdefRecordPayloadPosterResource) ToPayload() (NdefRecordPayload, error) {
 	return NdefRecordPayloadPoster(ndefRecordPayloadResource), nil
 }
 
+//TnfToString - raw NDEF record tnf code conversion to string
 func TnfToString(tnf int) string {
 	var s string
 	switch tnf {

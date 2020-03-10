@@ -7,7 +7,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/pkg/errors"
-	"github.com/taglme/nfc-client/pkg/models"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 type SnippetFilter struct {
