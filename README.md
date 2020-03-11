@@ -2,8 +2,8 @@
 
 [![Build Status](https://circleci.com/gh/taglme/nfc-goclient.svg?style=shield)](https://circleci.com/gh/taglme/nfc-goclient)
 [![codecov](https://codecov.io/gh/taglme/nfc-goclient/branch/master/graph/badge.svg)](https://codecov.io/gh/taglme/nfc-goclient)
-[![GoDoc](https://godoc.org/github.com/taglme/nfc-goclient?status.svg)](https://godoc.org/github.com/taglme/nfc-goclient)
-[![Release](https://img.shields.io/github/release/taglme/nfc-goclient.svg?style=flat-square)](https://github.com/taglme/nfc-goclient/releases)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/taglme/nfc-goclient)
+[![Release](https://img.shields.io/github/release/taglme/nfc-goclient.svg?style=flat)](https://github.com/taglme/nfc-goclient/releases)
 
 Official open-source Golang SDK library for [Taglme Desktop](https://github.com/taglme/desktop).
 Quick and efficient way to connect applications with NFC REST API server.
