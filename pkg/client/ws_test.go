@@ -156,7 +156,6 @@ func TestWsService_OnEvent(t *testing.T) {
 	assert.Less(t, 0, a)
 }
 
-
 func TestWsService_OnError(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(echoForErr))
 	defer s.Close()
