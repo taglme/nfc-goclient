@@ -73,11 +73,11 @@ func (s *signer) Sign(req *http.Request) error {
 func PrivateRSAKeyFromB64String(str string) (*rsa.PrivateKey, error) {
 	decodedKey, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
-		return nil, fmt.Errorf("Key base64 decode error:", err)
+		return nil, fmt.Errorf("Key base64 decode error: %s", err.Error())
 	}
 	pKey, err := x509.ParsePKCS1PrivateKey(decodedKey)
 	if err != nil {
-		return nil, fmt.Errorf("Key parse error:", err)
+		return nil, fmt.Errorf("Key parse error: %s", err.Error())
 	}
 	return pKey, nil
 }
