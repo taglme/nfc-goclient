@@ -2,116 +2,85 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
+	"github.com/pkg/errors"
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
-var licensePath = "/licenses/apps/"
-
-type LicenseChecker interface {
-	Start()
-	Stop()
-	License() (models.ApplicationLicense, bool)
-	IsActive() bool
+//license service interface
+type LicenseService interface {
+	GetLicense() (models.License, error)
+	GetAppLicense(appID string) (models.AppLicense, error)
 }
 
-type licenseChecker struct {
-	host     string
-	appID    string
-	interval time.Duration
-	callback func(bool)
-	license  models.ApplicationLicense
-	started  bool
-	stopSig  chan bool
+type licenseService struct {
+	url      string
+	basePath string
+	path     string
+	client   *http.Client
 }
 
-func NewLicenseChecker(host string, interval time.Duration, callback func(bool), appID string) LicenseChecker {
-	return &licenseChecker{
-		host:     host,
-		appID:    appID,
-		interval: interval,
-		callback: callback,
+func newLicenseService(c *http.Client, url string) LicenseService {
+	return &licenseService{
+		url:      url,
+		client:   c,
+		path:     "/apps",
+		basePath: "/licenses",
 	}
 }
 
-func (l *licenseChecker) License() (al models.ApplicationLicense, ok bool) {
-	al = l.license
-	if l.license.ID != "" {
-		ok = true
+// Get license with all details
+func (s *licenseService) GetLicense() (license models.License, err error) {
+	resp, err := s.client.Get(s.url + s.basePath)
+	if err != nil {
+		return license, errors.Wrap(err, "Can't get license\n")
 	}
-	return
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return license, errors.Wrap(err, "Can't read response body\n")
+	}
+	err = handleHttpResponseCode(resp.StatusCode, body)
+	if err != nil {
+		return license, errors.Wrap(err, "Error in fetching license\n")
+	}
+	var licenseResource models.LicenseResource
+	err = json.Unmarshal(body, &licenseResource)
+	if err != nil {
+		return license, errors.Wrap(err, "Can't unmarshal license response\n")
+	}
+	lic, err := licenseResource.ToLicense()
+	if err != nil {
+		return license, errors.Wrap(err, "Can't convert license resource\n")
+	}
+	return lic, nil
 }
 
-func (l *licenseChecker) IsActive() (active bool) {
-	if l.license.ID != "" {
-		if l.license.End == "" {
-			active = true
-		} else {
-			licenseEnd, err := time.Parse("2006-01-02", l.license.End)
-			if err == nil {
-				if time.Now().Before(licenseEnd) {
-					active = true
-				}
-			}
-
-		}
-
+// Get license for specific application with all details
+func (s *licenseService) GetAppLicense(appID string) (appLicense models.AppLicense, err error) {
+	resp, err := s.client.Get(s.url + s.basePath + s.path + "/" + appID)
+	if err != nil {
+		return appLicense, errors.Wrap(err, "Can't get app license\n")
 	}
-	return
-}
-
-func (l *licenseChecker) Start() {
-	if !l.started {
-		fmt.Println("Start check license")
-		stopSig := make(chan bool)
-		l.stopSig = stopSig
-		go func() {
-			for {
-				select {
-				case <-stopSig:
-					return
-				default:
-					l.license = models.ApplicationLicense{}
-					resp, err := http.Get(l.host + licensePath + l.appID)
-					if err != nil {
-						break
-					}
-					body, err := ioutil.ReadAll(resp.Body)
-					if err != nil {
-						break
-					}
-					resp.Body.Close()
-					var appLicense models.ApplicationLicense
-					err = json.Unmarshal(body, &appLicense)
-					if err != nil {
-						break
-					}
-					if appLicense.ID == "" {
-						break
-					}
-					l.license = appLicense
-
-				}
-				if l.callback != nil {
-					go l.callback(l.IsActive())
-				}
-				time.Sleep(l.interval)
-
-			}
-		}()
-		l.started = true
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return appLicense, errors.Wrap(err, "Can't read response body\n")
 	}
-
-}
-func (l *licenseChecker) Stop() {
-	if l.started {
-		fmt.Println("Stop check license")
-		l.stopSig <- true
-		l.started = false
+	err = handleHttpResponseCode(resp.StatusCode, body)
+	if err != nil {
+		return appLicense, errors.Wrap(err, "Error in fetching application license\n")
 	}
-
+	var appLicenseResource models.AppLicenseResource
+	err = json.Unmarshal(body, &appLicenseResource)
+	if err != nil {
+		return appLicense, errors.Wrap(err, "Can't unmarshal application license response\n")
+	}
+	appLic, err := appLicenseResource.ToAppLicense()
+	if err != nil {
+		return appLicense, errors.Wrap(err, "Can't convert application license resource\n")
+	}
+	return appLic, nil
 }

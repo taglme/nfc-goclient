@@ -17,6 +17,7 @@ type Client struct {
 	Tags     TagService
 	Runs     RunService
 	Jobs     JobService
+	Licenses LicenseService
 	Ws       WsService
 	locale   string
 }
@@ -45,6 +46,7 @@ func New(host string, locale string) *Client {
 		Tags:     newTagService(httpClient, urlHttp),
 		Runs:     newRunService(httpClient, urlHttp),
 		Jobs:     newJobService(httpClient, urlHttp),
+		Licenses: newLicenseService(httpClient, urlHttp),
 		Ws:       newWsService(urlWs),
 		locale:   locale,
 	}
