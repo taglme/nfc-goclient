@@ -2,11 +2,12 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestHandleHttpResponseCode(t *testing.T) {
@@ -27,9 +28,7 @@ func TestHandleHttpResponseCode(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	c := New("http://my.url", "en")
-
-	assert.Equal(t, "en", c.locale)
+	c := New("http://my.url")
 	assert.NotNil(t, c.Jobs)
 	assert.NotNil(t, c.Runs)
 	assert.NotNil(t, c.Snippets)
@@ -39,6 +38,4 @@ func TestNew(t *testing.T) {
 	assert.NotNil(t, c.Adapters)
 	assert.NotNil(t, c.Ws)
 
-	c = New("http://my.url", "")
-	assert.Equal(t, "en", c.locale)
 }

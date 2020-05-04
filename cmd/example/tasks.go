@@ -16,7 +16,7 @@ type Tasker struct {
 
 func NewTasker(host string) *Tasker {
 	return &Tasker{
-		client: client.New(host, "en"),
+		client: client.New(host),
 		tasks:  make([]models.NewJob, 0),
 		done:   make(chan bool),
 	}

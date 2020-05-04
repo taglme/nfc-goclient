@@ -48,6 +48,9 @@ type AppLicenseResource struct {
 	End     string `json:"end"`
 	Support string `json:"support"`
 }
+type LicenseMID struct {
+	MID string `json:"mid"`
+}
 
 func (l AppLicense) IsActive() (ok bool) {
 	if l.ID != "" {
