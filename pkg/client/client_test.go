@@ -20,11 +20,11 @@ func TestHandleHttpResponseCode(t *testing.T) {
 		Info:    "err",
 	})
 	if err != nil {
-		log.Fatal("Can't marshall test model\n", err)
+		log.Fatal("Can't marshal test model", err)
 	}
 
 	err = handleHttpResponseCode(http.StatusBadRequest, resp)
-	assert.EqualError(t, err, "server responded with an error. Error message: msg. Error info: err")
+	assert.EqualError(t, err, "Server responded with an error: msg (err)")
 }
 
 func TestNew(t *testing.T) {

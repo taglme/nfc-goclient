@@ -2,12 +2,13 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestTagsGetAll(t *testing.T) {
@@ -24,12 +25,12 @@ func TestTagsGetAll(t *testing.T) {
 			Uid:         "za7VbYcSQU2zRgGQXQAm/g==",
 		}})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return err\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -41,7 +42,7 @@ func TestTagsGetAll(t *testing.T) {
 	body, err := api.GetAll("id", &tagType)
 
 	if err != nil {
-		log.Fatal("Can't get tags\n", err)
+		log.Fatal("Can't get tags", err)
 	}
 
 	assert.Equal(t, "name", body[0].AdapterName)
@@ -63,12 +64,12 @@ func TestTagsGetOne(t *testing.T) {
 			Product:     "product",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return err\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -78,7 +79,7 @@ func TestTagsGetOne(t *testing.T) {
 	body, err := api.Get("id", models.TagTypeBluetooth.String())
 
 	if err != nil {
-		log.Fatal("Can't get tags\n", err)
+		log.Fatal("Can't get tags", err)
 	}
 
 	assert.Equal(t, "name", body.AdapterName)

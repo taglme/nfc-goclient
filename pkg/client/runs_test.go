@@ -2,13 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestBuildRunQueryParams(t *testing.T) {
@@ -56,12 +57,12 @@ func TestRunsGetAll(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -71,7 +72,7 @@ func TestRunsGetAll(t *testing.T) {
 	body, pagInfo, err := api.GetAll("id")
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, "id", body[0].JobID)
@@ -105,12 +106,12 @@ func TestRunsGetFiltered(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -123,7 +124,7 @@ func TestRunsGetFiltered(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, "id", body[0].JobID)
@@ -151,12 +152,12 @@ func TestRunService_Get(t *testing.T) {
 			CreatedAt:   "2006-01-02T15:04:05Z",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -165,7 +166,7 @@ func TestRunService_Get(t *testing.T) {
 	api := newRunService(server.Client(), server.URL)
 	body, err := api.Get("id", "runid")
 	if err != nil {
-		log.Fatal("Can't get run\n", err)
+		log.Fatal("Can't get run", err)
 	}
 
 	assert.Equal(t, "id", body.JobID)

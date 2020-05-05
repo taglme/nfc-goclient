@@ -23,7 +23,7 @@ func TestBuildSnippetsQueryParams(t *testing.T) {
 	id1 := "123"
 	cat, ok := models.StringToSnippetCategory(c)
 	if !ok {
-		log.Printf("Can't convert snippet resource category\n")
+		log.Printf("Can't convert snippet resource category")
 	}
 
 	q1 := buildSnippetsQueryParams(SnippetFilter{
@@ -47,12 +47,12 @@ func TestSnippetsGetAll(t *testing.T) {
 			Code:        "code",
 		}})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -62,12 +62,12 @@ func TestSnippetsGetAll(t *testing.T) {
 	body, err := api.GetAll()
 
 	if err != nil {
-		log.Fatal("Can't get events\n", err)
+		log.Fatal("Can't get events", err)
 	}
 
 	cat, ok := models.StringToSnippetCategory("tag")
 	if !ok {
-		log.Printf("Can't convert snippet resource category\n")
+		log.Printf("Can't convert snippet resource category")
 	}
 
 	assert.Equal(t, "id", body[0].UsageID)
@@ -89,12 +89,12 @@ func TestSnippetsGetFiltered(t *testing.T) {
 			Code:        "code",
 		}})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -107,12 +107,12 @@ func TestSnippetsGetFiltered(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Fatal("Can't get events\n", err)
+		log.Fatal("Can't get events", err)
 	}
 
 	cat, ok := models.StringToSnippetCategory("tag")
 	if !ok {
-		log.Printf("Can't convert snippter resource category\n")
+		log.Printf("Can't convert snippter resource category")
 	}
 
 	assert.Equal(t, "id", body[0].UsageID)

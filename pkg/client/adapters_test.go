@@ -2,12 +2,13 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestAdapterService_GetAll(t *testing.T) {
@@ -23,12 +24,12 @@ func TestAdapterService_GetAll(t *testing.T) {
 			Driver:    "driver",
 		}})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -37,7 +38,7 @@ func TestAdapterService_GetAll(t *testing.T) {
 	api := newAdapterService(server.Client(), server.URL)
 	body, err := api.GetAll()
 	if err != nil {
-		log.Fatal("Can't get adapters\n", err)
+		log.Fatal("Can't get adapters", err)
 	}
 
 	assert.Equal(t, "123", body[0].AdapterID)
@@ -54,12 +55,12 @@ func TestAdapterService_GetAll2(t *testing.T) {
 			Info:    "err info",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(500)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -83,12 +84,12 @@ func TestAdapterService_GetFiltered(t *testing.T) {
 			Driver:    "driver",
 		}})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -98,7 +99,7 @@ func TestAdapterService_GetFiltered(t *testing.T) {
 	aType := models.AdapterTypeBarcode
 	body, err := api.GetFiltered(&aType)
 	if err != nil {
-		log.Fatal("Can't get adapters\n", err)
+		log.Fatal("Can't get adapters", err)
 	}
 
 	assert.Equal(t, "123", body[0].AdapterID)
@@ -115,12 +116,12 @@ func TestAdapterService_GetFiltered2(t *testing.T) {
 			Info:    "err info",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(500)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -145,12 +146,12 @@ func TestAdapterService_Get(t *testing.T) {
 			Driver:    "driver",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -159,7 +160,7 @@ func TestAdapterService_Get(t *testing.T) {
 	api := newAdapterService(server.Client(), server.URL)
 	body, err := api.Get("123")
 	if err != nil {
-		log.Fatal("Can't get adapter\n", err)
+		log.Fatal("Can't get adapter", err)
 	}
 
 	assert.Equal(t, "123", body.AdapterID)
@@ -177,12 +178,12 @@ func TestAdapterService_Get2(t *testing.T) {
 			Info:    "err info",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(500)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 

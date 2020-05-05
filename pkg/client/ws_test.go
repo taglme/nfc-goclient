@@ -2,15 +2,16 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 var upgrader = websocket.Upgrader{}
@@ -37,7 +38,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		})
 
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 
 		err = c.WriteMessage(websocket.TextMessage, resp)
@@ -138,7 +139,7 @@ func TestWsService_OnEvent(t *testing.T) {
 	ws := newWsService(u)
 	err := ws.Connect()
 	if err != nil {
-		log.Fatal("Can't connect to test server\n")
+		log.Fatal("Can't connect to test server")
 	}
 
 	a := 0
@@ -166,14 +167,14 @@ func TestWsService_OnError(t *testing.T) {
 	ws := newWsService(u)
 	err := ws.Connect()
 	if err != nil {
-		log.Fatal("Can't connect to test server\n")
+		log.Fatal("Can't connect to test server")
 	}
 
 	a := 0
 	l := func(e error) {
 		// change value to validate if handler is working
 		//assert.Equal(t, models.EventNameAdapterDiscovery, e.Name)
-		assert.EqualError(t, e, "Can't unmarshall event resource\n: invalid character 'D' looking for beginning of value")
+		assert.EqualError(t, e, "Can't unmarshall event resource: invalid character 'D' looking for beginning of value")
 		a++
 	}
 
@@ -199,7 +200,7 @@ func TestWsService_SetLocale(t *testing.T) {
 
 	err = ws.Connect()
 	if err != nil {
-		log.Fatal("Can't connect to test server\n")
+		log.Fatal("Can't connect to test server")
 	}
 
 	err = ws.SetLocale("en")

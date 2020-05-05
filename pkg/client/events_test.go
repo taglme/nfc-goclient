@@ -2,13 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestBuildQueryParams(t *testing.T) {
@@ -58,12 +59,12 @@ func TestEventsGetAll(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -73,7 +74,7 @@ func TestEventsGetAll(t *testing.T) {
 	body, pagInfo, err := api.GetAll()
 
 	if err != nil {
-		log.Fatal("Can't get events\n", err)
+		log.Fatal("Can't get events", err)
 	}
 
 	assert.Equal(t, "id", body[0].EventID)
@@ -95,12 +96,12 @@ func TestEventsGetAll2(t *testing.T) {
 			Info:    "err info",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(500)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -131,12 +132,12 @@ func TestEventsGetFiltered(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -150,7 +151,7 @@ func TestEventsGetFiltered(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Fatal("Can't get events\n", err)
+		log.Fatal("Can't get events", err)
 	}
 
 	assert.Equal(t, "id", body[0].EventID)
@@ -176,12 +177,12 @@ func TestEventsAdd(t *testing.T) {
 			CreatedAt:   "2006-01-02T15:04:05Z",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -195,7 +196,7 @@ func TestEventsAdd(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Fatal("Can't post event\n", err)
+		log.Fatal("Can't post event", err)
 	}
 
 	assert.Equal(t, models.EventNameAdapterDiscovery, body.Name)
@@ -213,12 +214,12 @@ func TestEventsGet2(t *testing.T) {
 			Info:    "err info",
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(500)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 

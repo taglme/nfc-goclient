@@ -2,13 +2,14 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestBuildJobsQueryParams(t *testing.T) {
@@ -57,12 +58,12 @@ func TestJobsGetAll(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -110,12 +111,12 @@ func TestJobsGetFiltered(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 	// Close the server when test finishes
@@ -130,7 +131,7 @@ func TestJobsGetFiltered(t *testing.T) {
 	})
 
 	if err != nil {
-		log.Fatal("Can't get jobs\n", err)
+		log.Fatal("Can't get jobs", err)
 	}
 
 	assert.Equal(t, "id", body[0].JobID)
@@ -162,12 +163,12 @@ func TestJobsGet(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -177,7 +178,7 @@ func TestJobsGet(t *testing.T) {
 	body, err := api.Get("id", "jid")
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, "id", body.JobID)
@@ -195,7 +196,7 @@ func TestJobsDeleteAll(t *testing.T) {
 		rw.WriteHeader(200)
 		_, err := rw.Write(nil)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -205,7 +206,7 @@ func TestJobsDeleteAll(t *testing.T) {
 	err := api.DeleteAll("id")
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, nil, err)
@@ -218,7 +219,7 @@ func TestJobsDelete(t *testing.T) {
 		rw.WriteHeader(200)
 		_, err := rw.Write(nil)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -228,7 +229,7 @@ func TestJobsDelete(t *testing.T) {
 	err := api.Delete("id", "jid")
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, nil, err)
@@ -253,12 +254,12 @@ func TestJobService_UpdateStatus(t *testing.T) {
 			}},
 		})
 		if err != nil {
-			log.Fatal("Can't marshall test model\n", err)
+			log.Fatal("Can't marshall test model", err)
 		}
 		rw.WriteHeader(200)
 		_, err = rw.Write(resp)
 		if err != nil {
-			log.Fatal("Can't return er\n", err)
+			log.Fatal("Can't return err", err)
 		}
 	}))
 
@@ -268,7 +269,7 @@ func TestJobService_UpdateStatus(t *testing.T) {
 	body, err := api.UpdateStatus("id", "jid", models.JobStatusActive)
 
 	if err != nil {
-		log.Fatal("Can't get runs\n", err)
+		log.Fatal("Can't get runs", err)
 	}
 
 	assert.Equal(t, "id", body.JobID)
