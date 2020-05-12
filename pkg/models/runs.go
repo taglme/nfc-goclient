@@ -122,11 +122,11 @@ func (jr JobRun) ToResource() JobRunResource {
 }
 
 type JobRunListResource struct {
-	Total  int
-	Length int
-	Limit  int
-	Offset int
-	Items  []JobRunResource
+	Total  int              `json:"total"`
+	Length int              `json:"length"`
+	Limit  int              `json:"limit"`
+	Offset int              `json:"offset"`
+	Items  []JobRunResource `json:"items"`
 }
 
 type JobRunStatus int

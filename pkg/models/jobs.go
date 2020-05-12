@@ -148,11 +148,11 @@ func (j JobResource) ToJob() (job Job, err error) {
 }
 
 type JobListResource struct {
-	Total  int
-	Length int
-	Limit  int
-	Offset int
-	Items  []JobResource
+	Total  int           `json:"total"`
+	Length int           `json:"length"`
+	Limit  int           `json:"limit"`
+	Offset int           `json:"offset"`
+	Items  []JobResource `json:"items"`
 }
 
 type JobStatus int

@@ -1,8 +1,8 @@
 package models
 
 type PageInfo struct {
-	Total  int
-	Length int
-	Limit  int
-	Offset int
+	Total  int `json:"total"`
+	Length int `json:"length"`
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
