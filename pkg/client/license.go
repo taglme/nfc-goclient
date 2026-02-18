@@ -14,6 +14,7 @@ type LicenseService interface {
 	GetLicense() (models.License, error)
 	GetAppLicense(appID string) (models.AppLicense, error)
 	GetMID() (string, error)
+	GetAccess() (models.LicenseAccess, error)
 }
 
 type licenseService struct {
@@ -107,4 +108,27 @@ func (s *licenseService) GetMID() (string, error) {
 		return "", errors.Wrap(err, "Can't unmarshal MID response\n")
 	}
 	return midRes.MID, nil
+}
+
+// GetAccess returns the host tier and allowed scopes for the current host.
+func (s *licenseService) GetAccess() (models.LicenseAccess, error) {
+	var access models.LicenseAccess
+	resp, err := s.client.Get(s.url + s.basePath + "/access")
+	if err != nil {
+		return access, errors.Wrap(err, "Can't get license access\n")
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return access, errors.Wrap(err, "Can't read response body\n")
+	}
+	err = handleHttpResponseCode(resp.StatusCode, body)
+	if err != nil {
+		return access, errors.Wrap(err, "Error in fetching license access\n")
+	}
+	err = json.Unmarshal(body, &access)
+	if err != nil {
+		return access, errors.Wrap(err, "Can't unmarshal license access response\n")
+	}
+	return access, nil
 }
