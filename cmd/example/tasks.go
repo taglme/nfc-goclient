@@ -14,11 +14,16 @@ type Tasker struct {
 	done   chan bool
 }
 
-func NewTasker(host string) *Tasker {
+func NewTasker(baseURL string, xAppKey string, xUserToken string, locale string) *Tasker {
 	return &Tasker{
-		client: client.New(host),
-		tasks:  make([]models.NewJob, 0),
-		done:   make(chan bool),
+		client: client.NewWithOptions(client.Options{
+			BaseURL:    baseURL,
+			Locale:     locale,
+			XAppKey:    xAppKey,
+			XUserToken: xUserToken,
+		}),
+		tasks: make([]models.NewJob, 0),
+		done:  make(chan bool),
 	}
 }
 func (t *Tasker) Add(nj models.NewJob) {

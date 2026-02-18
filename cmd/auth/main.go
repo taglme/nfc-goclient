@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/taglme/nfc-goclient/pkg/client"
@@ -14,13 +15,22 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	privateRSAKey, err := client.PrivateRSAKeyFromB64String(os.Getenv("SECRET"))
-	if err != nil {
-		log.Fatal(err)
+	baseURL := strings.TrimSpace(os.Getenv("BASE_URL"))
+	if baseURL == "" {
+		baseURL = "http://127.0.0.1:3011"
 	}
-	auth := client.NewSigner(os.Getenv("APP_ID"), privateRSAKey, os.Getenv("CERT"))
-	client := client.New("127.0.0.1:3011", auth)
-	adapters, err := client.Adapters.GetAll()
+	xAppKey := strings.TrimSpace(os.Getenv("X_APP_KEY"))
+	xUserToken := strings.TrimSpace(os.Getenv("X_USER_TOKEN"))
+	locale := strings.TrimSpace(os.Getenv("LOCALE"))
+
+	c := client.NewWithOptions(client.Options{
+		BaseURL:      baseURL,
+		Locale:       locale,
+		XAppKey:      xAppKey,
+		XUserToken:   xUserToken,
+		Interceptors: nil,
+	})
+	adapters, err := c.Adapters.GetAll()
 	if err != nil {
 		log.Fatal(err)
 	}

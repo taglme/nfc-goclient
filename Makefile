@@ -4,7 +4,7 @@ export GO111MODULE=on
 all: deps lint test build
 
 build:
-	go build -mod=vendor ./pkg/client
+	go build ./...
 
 lint:
 	golangci-lint run pkg/client
@@ -14,7 +14,7 @@ test:
 
 deps:
 	go mod download
-	go mod vendor
+	go mod tidy
 
 deps_check:
-	@test -z "$(shell git status -s ./vendor ./go.mod ./go.sum)"
+	@test -z "$(shell git status -s ./go.mod ./go.sum)"

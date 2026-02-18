@@ -13,6 +13,7 @@ import (
 type LicenseService interface {
 	GetLicense() (models.License, error)
 	GetAppLicense(appID string) (models.AppLicense, error)
+	GetMID() (string, error)
 }
 
 type licenseService struct {
@@ -83,4 +84,27 @@ func (s *licenseService) GetAppLicense(appID string) (appLicense models.AppLicen
 		return appLicense, errors.Wrap(err, "Can't convert application license resource\n")
 	}
 	return appLic, nil
+}
+
+// GetMID returns current host machine id (MID) as reported by the API.
+func (s *licenseService) GetMID() (string, error) {
+	resp, err := s.client.Get(s.url + s.basePath + "/mid")
+	if err != nil {
+		return "", errors.Wrap(err, "Can't get MID\n")
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.Wrap(err, "Can't read response body\n")
+	}
+	err = handleHttpResponseCode(resp.StatusCode, body)
+	if err != nil {
+		return "", errors.Wrap(err, "Error in fetching MID\n")
+	}
+	var midRes models.LicenseMID
+	err = json.Unmarshal(body, &midRes)
+	if err != nil {
+		return "", errors.Wrap(err, "Can't unmarshal MID response\n")
+	}
+	return midRes.MID, nil
 }

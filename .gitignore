@@ -1,2 +1,9 @@
 *.exe
 .idea/
+
+# Local env files
+.env
+cmd/**/.env
+
+# Go test artifacts
+coverage*.txt
