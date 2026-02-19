@@ -2,12 +2,13 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
-	"github.com/taglme/nfc-goclient/pkg/models"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
 func TestAboutGet(t *testing.T) {
@@ -15,9 +16,10 @@ func TestAboutGet(t *testing.T) {
 		// Test request parameters
 		assert.Equal(t, req.URL.String(), "/about")
 		resp, err := json.Marshal(models.AppInfo{
-			Name:    "Name",
-			Version: "Version",
-			Commit:  "Commit",
+			Name:     "Name",
+			HostName: "Host-1",
+			Version:  "Version",
+			Commit:   "Commit",
 		})
 		if err != nil {
 			log.Fatal("Can't marshall test model", err)
@@ -40,6 +42,7 @@ func TestAboutGet(t *testing.T) {
 	}
 
 	assert.Equal(t, body.Name, "Name")
+	assert.Equal(t, body.HostName, "Host-1")
 	assert.Equal(t, body.Version, "Version")
 	assert.Equal(t, body.Commit, "Commit")
 }

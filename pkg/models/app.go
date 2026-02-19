@@ -2,6 +2,7 @@ package models
 
 type AppInfo struct {
 	Name           string `json:"name"`
+	HostName       string `json:"host_name"`
 	Version        string `json:"version"`
 	Commit         string `json:"commit"`
 	SDKInfo        string `json:"sdk_info"`
