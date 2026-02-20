@@ -7,36 +7,36 @@ import (
 )
 
 type License struct {
-	ID           string
-	Owner        string
-	Email        string
-	Machine      string
-	Type         string
-	HostTier     string
-	Start        time.Time
-	End          time.Time
-	Support      time.Time
+	ID       string
+	Owner    string
+	Email    string
+	Machine  string
+	Type     string
+	HostTier string
+	Start    time.Time
+	End      time.Time
+	Support  time.Time
 	// Features is kept for backward compatibility with older API schema.
 	// Prefer Plugins.
-	Features []string
-	Plugins  []string
+	Features     []string
+	Plugins      []string
 	Applications []AppLicense
 }
 
 type LicenseResource struct {
-	ID           string               `json:"id"`
-	Owner        string               `json:"owner"`
-	Email        string               `json:"email"`
-	Machine      string               `json:"machine"`
-	Type         string               `json:"type"`
-	HostTier     string               `json:"host_tier"`
-	Start        string               `json:"start"`
-	End          string               `json:"end"`
-	Support      string               `json:"support"`
+	ID       string `json:"id"`
+	Owner    string `json:"owner"`
+	Email    string `json:"email"`
+	Machine  string `json:"machine"`
+	Type     string `json:"type"`
+	HostTier string `json:"host_tier"`
+	Start    string `json:"start"`
+	End      string `json:"end"`
+	Support  string `json:"support"`
 	// Legacy field.
 	Features []string `json:"features"`
 	// Current field.
-	Plugins []string `json:"plugins"`
+	Plugins      []string             `json:"plugins"`
 	Applications []AppLicenseResource `json:"applications"`
 }
 
