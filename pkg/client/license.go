@@ -9,12 +9,13 @@ import (
 	"github.com/taglme/nfc-goclient/pkg/models"
 )
 
-//license service interface
+// license service interface
 type LicenseService interface {
 	GetLicense() (models.License, error)
 	GetAppLicense(appID string) (models.AppLicense, error)
 	GetMID() (string, error)
-	GetAccess() (models.LicenseAccess, error)
+	// GetAccess returns the currently effective (active) license.
+	GetAccess() (models.License, error)
 }
 
 type licenseService struct {
@@ -111,24 +112,30 @@ func (s *licenseService) GetMID() (string, error) {
 }
 
 // GetAccess returns the host tier and allowed scopes for the current host.
-func (s *licenseService) GetAccess() (models.LicenseAccess, error) {
-	var access models.LicenseAccess
+
+func (s *licenseService) GetAccess() (models.License, error) {
+	var license models.License
 	resp, err := s.client.Get(s.url + s.basePath + "/access")
 	if err != nil {
-		return access, errors.Wrap(err, "Can't get license access\n")
+		return license, errors.Wrap(err, "Can't get license access\n")
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return access, errors.Wrap(err, "Can't read response body\n")
+		return license, errors.Wrap(err, "Can't read response body\n")
 	}
 	err = handleHttpResponseCode(resp.StatusCode, body)
 	if err != nil {
-		return access, errors.Wrap(err, "Error in fetching license access\n")
+		return license, errors.Wrap(err, "Error in fetching license access\n")
 	}
-	err = json.Unmarshal(body, &access)
+	var licenseResource models.LicenseResource
+	err = json.Unmarshal(body, &licenseResource)
 	if err != nil {
-		return access, errors.Wrap(err, "Can't unmarshal license access response\n")
+		return license, errors.Wrap(err, "Can't unmarshal license access response\n")
 	}
-	return access, nil
+	lic, err := licenseResource.ToLicense()
+	if err != nil {
+		return license, errors.Wrap(err, "Can't convert license resource\n")
+	}
+	return lic, nil
 }

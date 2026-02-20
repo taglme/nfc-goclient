@@ -14,11 +14,17 @@ import (
 func TestLicenseGetAccess(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, "/licenses/access", req.URL.String())
-		resp, err := json.Marshal(models.LicenseAccess{
-			MachineID:            "MID123",
-			HostTier:             "pro",
-			AllowedScopes:        []string{"nfc.read", "nfc.write"},
-			AllowedCommandScopes: []string{"run.create"},
+		resp, err := json.Marshal(models.LicenseResource{
+			ID:       "LIC-1",
+			Owner:    "Owner",
+			Email:    "o@example.com",
+			Machine:  "MID123",
+			Type:     "standard",
+			HostTier: "pro",
+			Start:    "2024-01-01",
+			End:      "2025-01-01",
+			Support:  "2025-01-01",
+			Plugins:  []string{"Nfcd"},
 		})
 		if err != nil {
 			log.Fatal("Can't marshall test model", err)
@@ -32,12 +38,11 @@ func TestLicenseGetAccess(t *testing.T) {
 	defer server.Close()
 
 	api := newLicenseService(server.Client(), server.URL)
-	access, err := api.GetAccess()
+	lic, err := api.GetAccess()
 	assert.NoError(t, err)
-	assert.Equal(t, "MID123", access.MachineID)
-	assert.Equal(t, "pro", access.HostTier)
-	assert.Equal(t, []string{"nfc.read", "nfc.write"}, access.AllowedScopes)
-	assert.Equal(t, []string{"run.create"}, access.AllowedCommandScopes)
+	assert.Equal(t, "MID123", lic.Machine)
+	assert.Equal(t, "pro", lic.HostTier)
+	assert.Equal(t, "LIC-1", lic.ID)
 }
 
 func TestLicenseGetAccessError(t *testing.T) {

@@ -12,27 +12,82 @@ type License struct {
 	Email    string
 	Machine  string
 	Type     string
+	Active   *bool
 	HostTier string
 	Start    time.Time
 	End      time.Time
 	Support  time.Time
 	// Features is kept for backward compatibility with older API schema.
 	// Prefer Plugins.
-	Features     []string
-	Plugins      []string
-	Applications []AppLicense
+	Features         []string
+	Plugins          []string
+	Applications     []AppLicense
+	RevokedAppKeyIDs []string
+	AppClassPolicies map[string]AppClassPolicy
+	Policies         map[string]HostPolicy
+	JobPolicies      map[string]JobCapabilities
+	TokenPolicy      TokenPolicy
+}
+
+type TokenPolicy struct {
+	UseHeaderToken    bool `json:"use_header_token"`
+	UseAuthorization  bool `json:"use_authorization"`
+	UseServiceToken   bool `json:"use_service_token"`
+	PreferHeaderToken bool `json:"prefer_header_token"`
+}
+
+type JobCapabilities struct {
+	AllowRepeat    bool `json:"allow_repeat"`
+	AllowBatch     bool `json:"allow_batch"`
+	AllowMultistep bool `json:"allow_multistep"`
+}
+
+type CreateJobConstraints struct {
+	MaxRepeat               *int     `json:"max_repeat"`
+	MaxSteps                *int     `json:"max_steps"`
+	MaxQueuedJobsPerAdapter *int     `json:"max_queued_jobs_per_adapter"`
+	AllowedScopes           []string `json:"allowed_scopes,omitempty"`
+	AllowedCommandScopes    []string `json:"allowed_command_scopes"`
+}
+
+type CreateJobRateLimit struct {
+	MinIntervalMs *int `json:"min_interval_ms"`
+	WindowMs      *int `json:"window_ms"`
+	MaxInWindow   *int `json:"max_in_window"`
+}
+
+type AppClassPolicy struct {
+	AppClass      string               `json:"app_class"`
+	AllowedScopes []string             `json:"allowed_scopes,omitempty"`
+	CreateJobRate CreateJobRateLimit   `json:"create_job_rate_limit"`
+	Capabilities  JobCapabilities      `json:"job_capabilities"`
+	Constraints   CreateJobConstraints `json:"create_job_constraints"`
+}
+
+type HostPolicy struct {
+	AllowedScopes []string             `json:"allowed_scopes"`
+	CreateJobRate CreateJobRateLimit   `json:"create_job_rate_limit"`
+	Capabilities  JobCapabilities      `json:"job_capabilities"`
+	Constraints   CreateJobConstraints `json:"create_job_constraints"`
+	Params        map[string]any       `json:"params,omitempty"`
 }
 
 type LicenseResource struct {
-	ID       string `json:"id"`
-	Owner    string `json:"owner"`
-	Email    string `json:"email"`
-	Machine  string `json:"machine"`
-	Type     string `json:"type"`
-	HostTier string `json:"host_tier"`
-	Start    string `json:"start"`
-	End      string `json:"end"`
-	Support  string `json:"support"`
+	ID               string                     `json:"id"`
+	Owner            string                     `json:"owner"`
+	Email            string                     `json:"email"`
+	Machine          string                     `json:"machine"`
+	Type             string                     `json:"type"`
+	Active           *bool                      `json:"active"`
+	HostTier         string                     `json:"host_tier"`
+	RevokedAppKeyIDs []string                   `json:"revoked_app_key_ids"`
+	AppClassPolicies map[string]AppClassPolicy  `json:"app_class_policies"`
+	Policies         map[string]HostPolicy      `json:"policies"`
+	JobPolicies      map[string]JobCapabilities `json:"job_policies"`
+	TokenPolicy      TokenPolicy                `json:"token_policy"`
+	Start            string                     `json:"start"`
+	End              string                     `json:"end"`
+	Support          string                     `json:"support"`
 	// Legacy field.
 	Features []string `json:"features"`
 	// Current field.
@@ -149,18 +204,24 @@ func (r *LicenseResource) ToLicense() (license License, err error) {
 	}
 
 	license = License{
-		ID:           r.ID,
-		Owner:        r.Owner,
-		Email:        r.Email,
-		Machine:      r.Machine,
-		Type:         r.Type,
-		HostTier:     r.HostTier,
-		Start:        licenseStart,
-		End:          licenseEnd,
-		Support:      licenseSupport,
-		Features:     r.Features,
-		Plugins:      r.Plugins,
-		Applications: appLicenses,
+		ID:               r.ID,
+		Owner:            r.Owner,
+		Email:            r.Email,
+		Machine:          r.Machine,
+		Type:             r.Type,
+		Active:           r.Active,
+		HostTier:         r.HostTier,
+		Start:            licenseStart,
+		End:              licenseEnd,
+		Support:          licenseSupport,
+		Features:         r.Features,
+		Plugins:          r.Plugins,
+		Applications:     appLicenses,
+		RevokedAppKeyIDs: r.RevokedAppKeyIDs,
+		AppClassPolicies: r.AppClassPolicies,
+		Policies:         r.Policies,
+		JobPolicies:      r.JobPolicies,
+		TokenPolicy:      r.TokenPolicy,
 	}
 	// Backward compatibility: if server still returns legacy features, map them to plugins.
 	if len(license.Plugins) == 0 && len(license.Features) > 0 {
