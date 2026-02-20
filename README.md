@@ -81,6 +81,11 @@ All authenticated API requests use headers:
 - `X-App-Key` (required)
 - `X-User-Token` (optional)
 
+Notes:
+- `X-App-Key` is a thin signed JWT that identifies the client application (it no longer carries host scopes).
+- `X-User-Token` is a short-lived signed JWT that contains a full `license` payload (same schema as `desktop.lic`).
+- `GET /licenses/access` returns the active host access derived from the highest-priority license source for the request (header token > service token > offline license).
+
 ```Go
 import "github.com/taglme/nfc-goclient/pkg/client"
 

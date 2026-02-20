@@ -12,10 +12,14 @@ type License struct {
 	Email        string
 	Machine      string
 	Type         string
+	HostTier     string
 	Start        time.Time
 	End          time.Time
 	Support      time.Time
-	Features     []string
+	// Features is kept for backward compatibility with older API schema.
+	// Prefer Plugins.
+	Features []string
+	Plugins  []string
 	Applications []AppLicense
 }
 
@@ -25,10 +29,14 @@ type LicenseResource struct {
 	Email        string               `json:"email"`
 	Machine      string               `json:"machine"`
 	Type         string               `json:"type"`
+	HostTier     string               `json:"host_tier"`
 	Start        string               `json:"start"`
 	End          string               `json:"end"`
 	Support      string               `json:"support"`
-	Features     []string             `json:"features"`
+	// Legacy field.
+	Features []string `json:"features"`
+	// Current field.
+	Plugins []string `json:"plugins"`
 	Applications []AppLicenseResource `json:"applications"`
 }
 
@@ -146,11 +154,17 @@ func (r *LicenseResource) ToLicense() (license License, err error) {
 		Email:        r.Email,
 		Machine:      r.Machine,
 		Type:         r.Type,
+		HostTier:     r.HostTier,
 		Start:        licenseStart,
 		End:          licenseEnd,
 		Support:      licenseSupport,
 		Features:     r.Features,
+		Plugins:      r.Plugins,
 		Applications: appLicenses,
+	}
+	// Backward compatibility: if server still returns legacy features, map them to plugins.
+	if len(license.Plugins) == 0 && len(license.Features) > 0 {
+		license.Plugins = append([]string{}, license.Features...)
 	}
 	return
 
